@@ -9,6 +9,12 @@ service cloud.firestore {
       return request.auth != null;
     }
 
+    function isAdmin() {
+      return isSignedIn() && 
+             request.auth.token.email == 'Stanislavskii.yo@gmail.com' && 
+             request.auth.token.email_verified == true;
+    }
+
     function incoming() { return request.resource.data; }
     
     function existing() { return resource.data; }
@@ -29,9 +35,9 @@ service cloud.firestore {
 
     match /cases/{caseId} {
       allow read: if true;
-      allow create: if isSignedIn() && isValidCase(incoming()) && incoming().createdAt == request.time;
-      allow update: if isSignedIn() && isValidCase(incoming()) && incoming().createdAt == existing().createdAt;
-      allow delete: if isSignedIn();
+      allow create: if isAdmin() && isValidCase(incoming()) && incoming().createdAt == request.time;
+      allow update: if isAdmin() && isValidCase(incoming()) && incoming().createdAt == existing().createdAt;
+      allow delete: if isAdmin();
     }
   }
 }

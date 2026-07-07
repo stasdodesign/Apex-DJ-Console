@@ -1,0 +1,74 @@
+{
+  "entities": {
+    "Case": {
+      "title": "Case",
+      "description": "An exploration item in the portfolio.",
+      "type": "object",
+      "properties": {
+        "categoryId": {
+          "type": "string",
+          "description": "The category ID of the exploration"
+        },
+        "imageUrl": {
+          "type": "string",
+          "description": "The URL to the main image or video file"
+        },
+        "thumbnailUrl": {
+          "type": "string",
+          "description": "The URL to the thumbnail representation"
+        },
+        "mediaType": {
+          "type": "string",
+          "enum": ["image", "video"],
+          "description": "The type of media: image or video"
+        },
+        "titleEn": {
+          "type": "string",
+          "description": "English title of the exploration"
+        },
+        "titleRu": {
+          "type": "string",
+          "description": "Russian title of the exploration"
+        },
+        "descriptionEn": {
+          "type": "string",
+          "description": "English description of the exploration"
+        },
+        "descriptionRu": {
+          "type": "string",
+          "description": "Russian description of the exploration"
+        },
+        "prompt": {
+          "type": "string",
+          "description": "The generation prompt used to create the media asset"
+        },
+        "altText": {
+          "type": "string",
+          "description": "A description of the image content, optionally AI-generated"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "The timestamp indicating when the exploration was published"
+        }
+      },
+      "required": [
+        "categoryId",
+        "imageUrl",
+        "titleEn",
+        "titleRu",
+        "descriptionEn",
+        "descriptionRu",
+        "prompt",
+        "altText",
+        "createdAt"
+      ]
+    }
+  },
+  "firestore": {
+    "/cases/{caseId}": {
+      "schema": "Case",
+      "description": "Collection of DJ-Console style visual and interactive explorations"
+    }
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "name": "APEX: DJ Console : Deck-Two",
+  "description": "Interactive portfolio with DJ-Console style filtering and Masonry layout.",
+  "requestFramePermissions": [
+    "microphone"
+  ],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

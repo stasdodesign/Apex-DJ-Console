@@ -1,4 +1,4 @@
-# Remix: DJ Console
+# APEX: DJ Console : Deck-Two
 
 [![Next.js](https://img.shields.io/badge/Next.js-15+-000000?style=for-the-badge&logo=nextdotjs)](https://nextjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org/)
@@ -8,10 +8,17 @@
 
 ---
 
+## 📖 Руководства / Guides
+
+*   [**Руководство пользователя (Русский)**](GUIDE_RU.md) — Использование дек, подключение MIDI-контроллеров и сэмплера RED SOUND SOUNDBITE.
+*   [**User Guide (English)**](GUIDE_EN.md) — Usage of decks, MIDI controller connection, and RED SOUND SOUNDBITE sampler.
+
+---
+
 ## 🇷🇺 Русская версия
 
 ### Описание проекта
-**Remix: DJ Console** — это интерактивная веб-джей-система с живым процедурным аудиосинтезом, работающая прямо в вашем браузере. Это полноценный браузерный аудио-инструмент и эксперимент на стыке веб-технологий, аудиоинженерии и интерактивного UI. 
+**APEX: DJ Console : Deck-Two** — это интерактивная веб-джей-система с живым процедурным аудиосинтезом, работающая прямо в вашем браузере. Это полноценный браузерный аудио-инструмент и эксперимент на стыке веб-технологий, аудиоинженерии и интерактивного UI. 
 
 Вся обработка звука происходит на стороне клиента с помощью низкоуровневого **Web Audio API** — без использования внешних аудиофайлов, плагинов, сторонних плееров или DAW. Звук рождается в реальном времени посредством математического синтеза волн.
 
@@ -38,7 +45,7 @@
 ## 🇬🇧 English version
 
 ### Project Overview
-**Remix: DJ Console** is an interactive, browser-based DJ system powered by live procedural audio synthesis. Built at the intersection of frontend engineering, audio synthesis, and interactive design, it turns your browser into a living musical instrument.
+**APEX: DJ Console : Deck-Two** is an interactive, browser-based DJ system powered by live procedural audio synthesis. Built at the intersection of frontend engineering, audio synthesis, and interactive design, it turns your browser into a living musical instrument.
 
 Every sound you hear is generated on the fly using the client-side **Web Audio API**. There are no static audio tracks, external streams, or bulky plugins — the entire soundscape is synthesized procedurally through mathematical oscillators and noise generators in real time.
 
@@ -85,8 +92,8 @@ Every sound you hear is generated on the fly using the client-side **Web Audio A
 
 1.  Клонируйте репозиторий:
     ```bash
-    git clone https://github.com/your-username/remix-dj-console.git
-    cd remix-dj-console
+    git clone https://github.com/your-username/apex-dj-console.git
+    cd apex-dj-console
     ```
 
 2.  Установите зависимости:
@@ -112,8 +119,8 @@ Every sound you hear is generated on the fly using the client-side **Web Audio A
 
 1.  Clone the repository:
     ```bash
-    git clone https://github.com/your-username/remix-dj-console.git
-    cd remix-dj-console
+    git clone https://github.com/your-username/apex-dj-console.git
+    cd apex-dj-console
     ```
 
 2.  Install dependencies:
@@ -139,7 +146,7 @@ Every sound you hear is generated on the fly using the client-side **Web Audio A
 
 ## 🎨 Как это устроено / How it Works (Audio Routing)
 
-```
+```text
 [ Synth Engine (Oscillators / Noise) ]
                  │
                  ▼
@@ -176,6 +183,19 @@ Every sound you hear is generated on the fly using the client-side **Web Audio A
 2.  **Filtering:** The signal passes through dynamically controlled filters (`BiquadFilterNode`) to alter the timbre.
 3.  **Mixing:** Equalizers adjust the frequency balance, and the crossfader redistributes the volume levels of the decks using a constant-power curve.
 4.  **Analysis:** The `AnalyserNode` module extracts frequency and waveform (FFT) data, passing it to the Canvas for visualization synced to the screen refresh rate (via `requestAnimationFrame`).
+
+---
+
+## 👨‍💻 Авторы и контакты / Author & Contacts
+
+**Stanislav Dovidenko**
+Product Designer & Engineer
+
+*   **Email:** [stasdodesign@gmail.com](mailto:stasdodesign@gmail.com)
+*   **Telegram:** [@StasDoDesign](https://t.me/StasDoDesign)
+*   **LinkedIn:** [in/stasdodesign](http://linkedin.com/in/stasdodesign)
+*   **Instagram:** [@stasdodesign](https://instagram.com/stasdodesign)
+*   **Portfolio:** [case.stanislavdovidenko.com](https://case.stanislavdovidenko.com/en.html)
 
 ---
 

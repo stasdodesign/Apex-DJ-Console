@@ -1826,7 +1826,7 @@ export default function DJConsole() {
         <div id="license-notice" className="bg-[#0A0A0A] border border-zinc-900/60 p-3.5 rounded-2xl flex items-center gap-3 flex-1">
           <CircleAlert className="w-5 h-5 text-amber-500/80 shrink-0" />
           <p className="text-[10px] leading-relaxed text-zinc-500 font-sans">
-            This DJ console is fully functional on the client side using the HTML5 <strong className="text-zinc-400">Web Audio API</strong>. Built-in loops are procedurally synthesized in real time. For the ultimate custom mix, drag and drop your own audio tracks to control pitch, EQ filtering, and echo delays instantly.
+            This APEX: DJ Console : Deck-Two is fully functional on the client side using the HTML5 <strong className="text-zinc-400">Web Audio API</strong>. Built-in loops are procedurally synthesized in real time. For the ultimate custom mix, drag and drop your own audio tracks to control pitch, EQ filtering, and echo delays instantly.
           </p>
         </div>
         

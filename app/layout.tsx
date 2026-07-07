@@ -18,7 +18,7 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "DJ Console",
+  title: "APEX: DJ Console : Deck-Two",
   description: "A professional interactive web-based DJ Console with dual decks, audio synthesis, effects, and visualizers.",
 };
 

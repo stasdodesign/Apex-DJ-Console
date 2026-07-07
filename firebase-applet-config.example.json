@@ -4,5 +4,7 @@
   "apiKey": "your-api-key",
   "authDomain": "your-auth-domain",
   "firestoreDatabaseId": "your-database-id",
-  "storageBucket": "your-storage-bucket"
+  "storageBucket": "your-storage-bucket",
+  "messagingSenderId": "your-messaging-sender-id",
+  "measurementId": "your-measurement-id"
 }

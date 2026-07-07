@@ -2,7 +2,20 @@ import { initializeApp, getApps, getApp } from 'firebase/app';
 import { getFirestore, doc, getDocFromServer } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
 import { getAuth } from 'firebase/auth';
-import config from '../firebase-applet-config.json';
+import rawConfig from '../firebase-applet-config.json';
+
+interface FirebaseAppletConfig {
+  projectId: string;
+  appId: string;
+  apiKey: string;
+  authDomain: string;
+  storageBucket: string;
+  messagingSenderId?: string;
+  measurementId?: string;
+  firestoreDatabaseId?: string;
+}
+
+const config = rawConfig as FirebaseAppletConfig;
 
 const firebaseConfig = {
   projectId: config.projectId,

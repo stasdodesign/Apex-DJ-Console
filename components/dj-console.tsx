@@ -5,11 +5,13 @@ import { motion, AnimatePresence } from "motion/react";
 import { 
   Play, Pause, RotateCcw, Volume2, Music, Upload, 
   Sparkles, Sliders, Disc, Disc2, Radio, Activity,
-  ChevronRight, Scissors, Shuffle, Plus, Star, CircleAlert
+  ChevronRight, Scissors, Shuffle, Plus, Star, CircleAlert,
+  ArrowLeft
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { ContactModal } from "./contact-modal";
+import SoundBitePro from "./soundbite-pro";
 
 // --- Types ---
 interface Track {
@@ -404,6 +406,8 @@ export default function DJConsole() {
   const [crossfader, setCrossfader] = useState(0.5); // 0 (Left/A) -> 1 (Right/B)
   const [masterVolume, setMasterVolume] = useState(0.8);
   const [isContactModalOpen, setIsContactModalOpen] = useState(false);
+  const [currentView, setCurrentView] = useState<"console" | "soundbite">("console");
+  const decodedBuffersRef = useRef<Record<string, AudioBuffer>>({});
 
   // MIDI Support
   const [midiDevices, setMidiDevices] = useState<string[]>([]);
@@ -678,6 +682,23 @@ export default function DJConsole() {
     return () => window.removeEventListener("beforeunload", handleBeforeUnload);
   }, []);
 
+  // --- Web Audio Unmount Cleanup ---
+  useEffect(() => {
+    return () => {
+      try {
+        deckASynthRef.current?.stop();
+        deckBSynthRef.current?.stop();
+        deckASourceRef.current?.stop();
+        deckBSourceRef.current?.stop();
+      } catch (e) {
+        // Ignore stopped node errors
+      }
+      if (audioContextRef.current) {
+        audioContextRef.current.close().catch(err => console.error("Error closing AudioContext on unmount:", err));
+      }
+    };
+  }, []);
+
   // --- Deck A Parameter Effects ---
   useEffect(() => {
     if (!audioStarted) return;
@@ -875,21 +896,29 @@ export default function DJConsole() {
     setTracks(prev => [newTrack, ...prev]);
   };
 
-  // Custom audio file player
-  const playUserTrack = async (deck: "A" | "B", track: Track) => {
+  // Custom audio file player with offset support and buffer caching
+  const playUserTrack = async (deck: "A" | "B", track: Track, offset: number = 0) => {
     if (!track.file || !audioContextRef.current) return;
     const ctx = audioContextRef.current;
     
     try {
-      const arrayBuffer = await track.file.arrayBuffer();
-      const decodedBuffer = await ctx.decodeAudioData(arrayBuffer);
+      let decodedBuffer = decodedBuffersRef.current[track.id];
+      if (!decodedBuffer) {
+        const arrayBuffer = await track.file.arrayBuffer();
+        decodedBuffer = await ctx.decodeAudioData(arrayBuffer);
+        decodedBuffersRef.current[track.id] = decodedBuffer;
+      }
 
       // Save buffer duration
       if (deck === "A") {
         setDeckA(prev => ({ ...prev, totalDuration: decodedBuffer.duration }));
         
         // Stop current source if playing
-        deckASourceRef.current?.stop();
+        try {
+          deckASourceRef.current?.stop();
+        } catch (e) {
+          // ignore
+        }
         
         const source = ctx.createBufferSource();
         source.buffer = decodedBuffer;
@@ -901,11 +930,15 @@ export default function DJConsole() {
           source.connect(deckAEqHighRef.current);
         }
         deckASourceRef.current = source;
-        source.start(0);
+        source.start(0, offset % decodedBuffer.duration);
       } else {
         setDeckB(prev => ({ ...prev, totalDuration: decodedBuffer.duration }));
         
-        deckBSourceRef.current?.stop();
+        try {
+          deckBSourceRef.current?.stop();
+        } catch (e) {
+          // ignore
+        }
         
         const source = ctx.createBufferSource();
         source.buffer = decodedBuffer;
@@ -916,10 +949,25 @@ export default function DJConsole() {
           source.connect(deckBEqHighRef.current);
         }
         deckBSourceRef.current = source;
-        source.start(0);
+        source.start(0, offset % decodedBuffer.duration);
       }
     } catch (err) {
       console.error("Failed to play user custom track:", err);
+    }
+  };
+
+  // Seek track navigation
+  const seekTrack = (deck: "A" | "B", seekTime: number) => {
+    if (deck === "A") {
+      setDeckA(prev => ({ ...prev, currentTime: seekTime }));
+      if (deckA.track.type === "user" && deckA.isPlaying && deckASourceRef.current) {
+        playUserTrack("A", deckA.track, seekTime);
+      }
+    } else {
+      setDeckB(prev => ({ ...prev, currentTime: seekTime }));
+      if (deckB.track.type === "user" && deckB.isPlaying && deckBSourceRef.current) {
+        playUserTrack("B", deckB.track, seekTime);
+      }
     }
   };
 
@@ -938,7 +986,7 @@ export default function DJConsole() {
         if (deckA.track.type === "synth") {
           deckASynthRef.current?.start();
         } else {
-          playUserTrack("A", deckA.track);
+          playUserTrack("A", deckA.track, deckA.currentTime);
         }
         setDeckA(prev => ({ ...prev, isPlaying: true }));
       }
@@ -954,7 +1002,7 @@ export default function DJConsole() {
         if (deckB.track.type === "synth") {
           deckBSynthRef.current?.start();
         } else {
-          playUserTrack("B", deckB.track);
+          playUserTrack("B", deckB.track, deckB.currentTime);
         }
         setDeckB(prev => ({ ...prev, isPlaying: true }));
       }
@@ -988,12 +1036,12 @@ export default function DJConsole() {
         setDeckA(prev => ({ ...prev, currentTime: timeVal }));
         if (deckA.track.type === "user" && deckASourceRef.current) {
           // Restart audio buffer at specified offset
-          playUserTrack("A", deckA.track);
+          playUserTrack("A", deckA.track, timeVal);
         }
       } else {
         setDeckB(prev => ({ ...prev, currentTime: timeVal }));
         if (deckB.track.type === "user" && deckBSourceRef.current) {
-          playUserTrack("B", deckB.track);
+          playUserTrack("B", deckB.track, timeVal);
         }
       }
     }
@@ -1053,6 +1101,22 @@ export default function DJConsole() {
     }
   };
 
+  if (currentView === "soundbite") {
+    return (
+      <div id="dj-console-container" className="flex-1 flex flex-col p-6 max-w-[1400px] w-full mx-auto select-none gap-6">
+        <div className="max-w-4xl mx-auto w-full">
+          <button 
+            onClick={() => setCurrentView("console")} 
+            className="inline-flex items-center gap-2 text-zinc-500 hover:text-white transition-colors text-xs font-mono cursor-pointer bg-zinc-900 px-4 py-2 rounded-lg border border-zinc-800"
+          >
+            <ArrowLeft className="w-4 h-4" /> BACK TO APEX: DJ Console : Deck-Two
+          </button>
+        </div>
+        <SoundBitePro />
+      </div>
+    );
+  }
+
   return (
     <div id="dj-console-container" className="flex-1 flex flex-col p-6 max-w-[1400px] w-full mx-auto select-none gap-6">
       
@@ -1071,10 +1135,13 @@ export default function DJConsole() {
         </div>
 
         <div className="flex items-center gap-4">
-          <Link href="/soundbite" className="px-4 py-2 bg-[#FF4B2B]/10 text-[#FF4B2B] hover:bg-[#FF4B2B]/20 text-[10px] font-mono tracking-widest rounded-lg border border-[#FF4B2B]/30 transition-colors flex items-center gap-2">
+          <button 
+            onClick={() => setCurrentView("soundbite")}
+            className="px-4 py-2 bg-[#FF4B2B]/10 text-[#FF4B2B] hover:bg-[#FF4B2B]/20 text-[10px] font-mono tracking-widest rounded-lg border border-[#FF4B2B]/30 transition-colors flex items-center gap-2 cursor-pointer"
+          >
             <Activity className="w-4 h-4" />
             RED SOUND SOUNDBITE
-          </Link>
+          </button>
           
           <button
             onClick={() => {
@@ -1202,12 +1269,18 @@ export default function DJConsole() {
             </div>
             
             {/* Waveform Progress Bar */}
-            <div className="w-full h-1.5 bg-zinc-900 rounded-full overflow-hidden relative cursor-pointer">
-              <div 
-                className="h-full bg-gradient-to-r from-purple-500 to-pink-500" 
-                style={{ width: `${(deckA.currentTime / deckA.totalDuration) * 100}%` }}
-              />
-            </div>
+            <input 
+              type="range"
+              min="0"
+              max={deckA.totalDuration || 30}
+              step="0.1"
+              value={deckA.currentTime}
+              onChange={(e) => seekTrack("A", parseFloat(e.target.value))}
+              className="w-full h-1.5 bg-zinc-900 rounded-full appearance-none cursor-pointer accent-purple-500 outline-none"
+              style={{
+                background: `linear-gradient(to right, #a855f7 0%, #ec4899 ${(deckA.currentTime / (deckA.totalDuration || 30)) * 100}%, #18181b ${(deckA.currentTime / (deckA.totalDuration || 30)) * 100}%, #18181b 100%)`
+              }}
+            />
 
             {/* Live Audio Visualizer Canvas */}
             <div className="w-full h-10 bg-[#0E0E0E] rounded-xl border border-zinc-900 overflow-hidden mt-1 relative">
@@ -1623,12 +1696,18 @@ export default function DJConsole() {
             </div>
             
             {/* Waveform Progress Bar */}
-            <div className="w-full h-1.5 bg-zinc-900 rounded-full overflow-hidden relative cursor-pointer">
-              <div 
-                className="h-full bg-gradient-to-r from-emerald-500 to-teal-500" 
-                style={{ width: `${(deckB.currentTime / deckB.totalDuration) * 100}%` }}
-              />
-            </div>
+            <input 
+              type="range"
+              min="0"
+              max={deckB.totalDuration || 30}
+              step="0.1"
+              value={deckB.currentTime}
+              onChange={(e) => seekTrack("B", parseFloat(e.target.value))}
+              className="w-full h-1.5 bg-zinc-900 rounded-full appearance-none cursor-pointer accent-emerald-500 outline-none"
+              style={{
+                background: `linear-gradient(to right, #10b981 0%, #06b6d4 ${(deckB.currentTime / (deckB.totalDuration || 30)) * 100}%, #18181b ${(deckB.currentTime / (deckB.totalDuration || 30)) * 100}%, #18181b 100%)`
+              }}
+            />
 
             {/* Live Audio Visualizer Canvas */}
             <div className="w-full h-10 bg-[#0E0E0E] rounded-xl border border-zinc-900 overflow-hidden mt-1 relative">

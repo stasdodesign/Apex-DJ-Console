@@ -8,6 +8,10 @@
 
 ---
 
+🌐 **Живое демо / Live Demo:** [apex.stanislavdovidenko.com](http://apex.stanislavdovidenko.com/) | [apex-dj-console.vercel.app](https://apex-dj-console.vercel.app/)
+
+---
+
 ## 📖 Руководства / Guides
 
 *   [**Руководство пользователя (Русский)**](GUIDE_RU.md) — Использование дек, подключение MIDI-контроллеров и сэмплера RED SOUND SOUNDBITE.

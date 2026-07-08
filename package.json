@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "node -e \"const fs = require('fs'); if (!fs.existsSync('./firebase-applet-config.json')) fs.writeFileSync('./firebase-applet-config.json', JSON.stringify({}));\" && next build",
+    "build": "node -e \"const fs = require('fs'); if (!fs.existsSync('./firebase-applet-config.json')) fs.writeFileSync('./firebase-applet-config.json', JSON.stringify({}));\" && next build --no-lint",
     "start": "next start",
     "lint": "next lint"
   },

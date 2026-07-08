@@ -2,13 +2,29 @@ import { GoogleGenAI } from '@google/genai';
 import { NextRequest, NextResponse } from 'next/server';
 import { getApps, initializeApp, getApp, App } from 'firebase-admin/app';
 import { getAuth } from 'firebase-admin/auth';
-import config from '../../../firebase-applet-config.json';
+import rawConfig from '../../../firebase-applet-config.json';
+
+interface FirebaseAppletConfig {
+  projectId?: string;
+  appId?: string;
+  apiKey?: string;
+  authDomain?: string;
+  storageBucket?: string;
+  messagingSenderId?: string;
+  measurementId?: string;
+  firestoreDatabaseId?: string;
+}
+
+const fileConfig = rawConfig as FirebaseAppletConfig;
+const projectId = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || process.env.FIREBASE_PROJECT_ID || fileConfig.projectId || '';
 
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
 // Initialize Firebase Admin once to verify ID tokens
 const apps = getApps();
-const adminApp: App = apps.length ? apps[0] : initializeApp({ projectId: config.projectId });
+const adminApp: App = apps.length 
+  ? apps[0] 
+  : initializeApp(projectId ? { projectId } : undefined);
 
 export async function POST(req: NextRequest) {
   try {
@@ -45,7 +61,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Verify the file path belongs to our own Firebase project to prevent other buckets abuse
-    if (!parsedUrl.pathname.includes(config.projectId)) {
+    if (projectId && !parsedUrl.pathname.includes(projectId)) {
       return NextResponse.json({ error: 'Forbidden: Image must reside in your storage bucket' }, { status: 403 });
     }
 

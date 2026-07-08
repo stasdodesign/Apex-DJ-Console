@@ -10,6 +10,10 @@
 
 🌐 **Живое демо / Live Demo:** [apex.stanislavdovidenko.com](http://apex.stanislavdovidenko.com/) | [apex-dj-console.vercel.app](https://apex-dj-console.vercel.app/)
 
+<p align="center">
+  <img src="./apex_dj_console.png" alt="APEX DJ Console" width="100%">
+</p>
+
 ---
 
 ## 📖 Руководства / Guides

@@ -183,9 +183,9 @@ export default function SoundBitePro() {
         <div className="space-y-8">
           
           {/* Main Controls & Screen */}
-          <div className="flex gap-6 items-start">
+          <div className="flex gap-6 items-start w-full min-w-0">
             
-            <div className="bg-black p-4 rounded-lg border-2 border-zinc-800 flex-1 relative shadow-inner">
+            <div className="bg-black p-4 rounded-lg border-2 border-zinc-800 flex-1 min-w-0 relative shadow-inner">
               <div className="absolute top-2 left-2 flex gap-2">
                 <div className="w-2 h-2 rounded-full bg-red-600 animate-pulse" />
                 <span className="text-[10px] font-bold text-red-600 tracking-widest">AUTO-BPM</span>
@@ -198,9 +198,9 @@ export default function SoundBitePro() {
               </div>
             </div>
 
-            <div className="flex-1 bg-[#222] p-4 rounded-lg border-2 border-[#111] shadow-inner space-y-4">
-              <div className="flex gap-2 items-center">
-                <label className="text-xs font-bold text-zinc-400 w-16">BPM SET</label>
+            <div className="flex-1 min-w-0 bg-[#222] p-4 rounded-lg border-2 border-[#111] shadow-inner space-y-4">
+              <div className="flex gap-2 items-center min-w-0">
+                <label className="text-xs font-bold text-zinc-400 w-16 shrink-0">BPM SET</label>
                 <input 
                   type="number" 
                   value={bpm} 
@@ -208,9 +208,9 @@ export default function SoundBitePro() {
                   className="bg-black border border-zinc-700 text-red-500 font-mono px-2 py-1 rounded w-20 text-center"
                 />
               </div>
-              <div className="flex gap-2 items-center">
-                <label className="text-xs font-bold text-zinc-400 w-16">AUDIO IN</label>
-                <label className="bg-zinc-800 hover:bg-zinc-700 text-xs font-bold px-3 py-2 rounded cursor-pointer border border-zinc-600 transition-colors flex-1 text-center truncate text-zinc-300">
+              <div className="flex gap-2 items-center min-w-0">
+                <label className="text-xs font-bold text-zinc-400 w-16 shrink-0">AUDIO IN</label>
+                <label className="bg-zinc-800 hover:bg-zinc-700 text-xs font-bold px-3 py-2 rounded cursor-pointer border border-zinc-600 transition-colors flex-1 text-center truncate text-zinc-300 block min-w-0 max-w-full">
                   {fileName || "UPLOAD TRACK"}
                   <input type="file" accept="audio/*" className="hidden" onChange={handleFileUpload} />
                 </label>

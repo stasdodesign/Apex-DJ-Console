@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "node -e \"const fs = require('fs'); if (!fs.existsSync('./firebase-applet-config.json')) fs.writeFileSync('./firebase-applet-config.json', JSON.stringify({}));\" && next build",
     "start": "next start",
     "lint": "next lint"
   },
@@ -15,7 +15,7 @@
     "firebase-admin": "^14.1.0",
     "lucide-react": "^0.468.0",
     "motion": "^11.15.0",
-    "next": "^16.2.10",
+    "next": "^15.1.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-responsive-masonry": "^2.7.2",

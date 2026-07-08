@@ -5,17 +5,28 @@ import { getAuth } from 'firebase/auth';
 import rawConfig from '../firebase-applet-config.json';
 
 interface FirebaseAppletConfig {
-  projectId: string;
-  appId: string;
-  apiKey: string;
-  authDomain: string;
-  storageBucket: string;
+  projectId?: string;
+  appId?: string;
+  apiKey?: string;
+  authDomain?: string;
+  storageBucket?: string;
   messagingSenderId?: string;
   measurementId?: string;
   firestoreDatabaseId?: string;
 }
 
-const config = rawConfig as FirebaseAppletConfig;
+const fileConfig = rawConfig as FirebaseAppletConfig;
+
+const config = {
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || fileConfig.projectId || '',
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID || fileConfig.appId || '',
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY || fileConfig.apiKey || '',
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN || fileConfig.authDomain || '',
+  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET || fileConfig.storageBucket || '',
+  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID || fileConfig.messagingSenderId || '',
+  measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID || fileConfig.measurementId || '',
+  firestoreDatabaseId: process.env.NEXT_PUBLIC_FIREBASE_DATABASE_ID || fileConfig.firestoreDatabaseId || '',
+};
 
 const firebaseConfig = {
   projectId: config.projectId,

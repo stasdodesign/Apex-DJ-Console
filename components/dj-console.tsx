@@ -6,7 +6,7 @@ import {
   Play, Pause, RotateCcw, Volume2, Music, Upload, 
   Sparkles, Sliders, Disc, Disc2, Radio, Activity,
   ChevronRight, Scissors, Shuffle, Plus, Star, CircleAlert,
-  ArrowLeft
+  ArrowLeft, Plug, Settings, Trash2
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
@@ -416,6 +416,39 @@ export default function DJConsole() {
   const midiMapRef = useRef<Record<string, string | number>>({}); // for fast access in handlers
   const midiControlTypesRef = useRef<Record<string, 'absolute' | 'relative'>>({});
   const midiRelativeCountRef = useRef<Record<string, number>>({});
+  const [midiSensitivity, setMidiSensitivity] = useState<number>(1.0);
+  const midiSensitivityRef = useRef<number>(1.0);
+  const [isMidiPanelOpen, setIsMidiPanelOpen] = useState(false);
+
+  // Load MIDI config from localStorage on mount
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const savedMap = localStorage.getItem("apex_dj_midi_map");
+        if (savedMap) {
+          const parsed = JSON.parse(savedMap);
+          setMidiMap(parsed);
+          midiMapRef.current = parsed;
+        }
+        const savedSensitivity = localStorage.getItem("apex_dj_midi_sensitivity");
+        if (savedSensitivity) {
+          const sens = parseFloat(savedSensitivity);
+          setMidiSensitivity(sens);
+          midiSensitivityRef.current = sens;
+        }
+      } catch (err) {
+        console.error("Failed to load MIDI settings from localStorage:", err);
+      }
+    }
+  }, []);
+
+  const updateMidiSensitivity = (val: number) => {
+    setMidiSensitivity(val);
+    midiSensitivityRef.current = val;
+    if (typeof window !== "undefined") {
+      localStorage.setItem("apex_dj_midi_sensitivity", String(val));
+    }
+  };
 
   // Initializing Web Audio graph
   const initAudio = () => {
@@ -646,6 +679,9 @@ export default function DJConsole() {
           setMidiMap(prev => {
             const newMap = { ...prev, [currentMode]: midiKey };
             midiMapRef.current = newMap;
+            if (typeof window !== "undefined") {
+              localStorage.setItem("apex_dj_midi_map", JSON.stringify(newMap));
+            }
             return newMap;
           });
           return null; // exit learn mode after mapped
@@ -706,102 +742,104 @@ export default function DJConsole() {
           }
         }
 
+        const sens = midiSensitivityRef.current;
+
         // Apply change to the control
         switch (mappedControl) {
           case 'crossfader':
             if (isRelativeCC) {
-              setCrossfader(p => Math.max(0, Math.min(1, p + delta * 0.015)));
+              setCrossfader(p => Math.max(0, Math.min(1, p + delta * 0.015 * sens)));
             } else {
               setCrossfader(normalizedValue);
             }
             break;
           case 'masterVolume':
             if (isRelativeCC) {
-              setMasterVolume(p => Math.max(0, Math.min(1.2, p + delta * 0.015)));
+              setMasterVolume(p => Math.max(0, Math.min(1.2, p + delta * 0.015 * sens)));
             } else {
               setMasterVolume(normalizedValue * 1.2);
             }
             break;
           case 'deckAVolume':
             if (isRelativeCC) {
-              setDeckA(p => ({ ...p, volume: Math.max(0, Math.min(1, p.volume + delta * 0.015)) }));
+              setDeckA(p => ({ ...p, volume: Math.max(0, Math.min(1, p.volume + delta * 0.015 * sens)) }));
             } else {
               setDeckA(p => ({ ...p, volume: normalizedValue }));
             }
             break;
           case 'deckBVolume':
             if (isRelativeCC) {
-              setDeckB(p => ({ ...p, volume: Math.max(0, Math.min(1, p.volume + delta * 0.015)) }));
+              setDeckB(p => ({ ...p, volume: Math.max(0, Math.min(1, p.volume + delta * 0.015 * sens)) }));
             } else {
               setDeckB(p => ({ ...p, volume: normalizedValue }));
             }
             break;
           case 'deckAEqHigh':
             if (isRelativeCC) {
-              setDeckA(p => ({ ...p, eqHigh: Math.max(-12, Math.min(12, p.eqHigh + delta)) }));
+              setDeckA(p => ({ ...p, eqHigh: Math.max(-12, Math.min(12, p.eqHigh + delta * sens)) }));
             } else {
               setDeckA(p => ({ ...p, eqHigh: Math.round((normalizedValue * 24) - 12) }));
             }
             break;
           case 'deckAEqMid':
             if (isRelativeCC) {
-              setDeckA(p => ({ ...p, eqMid: Math.max(-12, Math.min(12, p.eqMid + delta)) }));
+              setDeckA(p => ({ ...p, eqMid: Math.max(-12, Math.min(12, p.eqMid + delta * sens)) }));
             } else {
               setDeckA(p => ({ ...p, eqMid: Math.round((normalizedValue * 24) - 12) }));
             }
             break;
           case 'deckAEqLow':
             if (isRelativeCC) {
-              setDeckA(p => ({ ...p, eqLow: Math.max(-12, Math.min(12, p.eqLow + delta)) }));
+              setDeckA(p => ({ ...p, eqLow: Math.max(-12, Math.min(12, p.eqLow + delta * sens)) }));
             } else {
               setDeckA(p => ({ ...p, eqLow: Math.round((normalizedValue * 24) - 12) }));
             }
             break;
           case 'deckBEqHigh':
             if (isRelativeCC) {
-              setDeckB(p => ({ ...p, eqHigh: Math.max(-12, Math.min(12, p.eqHigh + delta)) }));
+              setDeckB(p => ({ ...p, eqHigh: Math.max(-12, Math.min(12, p.eqHigh + delta * sens)) }));
             } else {
               setDeckB(p => ({ ...p, eqHigh: Math.round((normalizedValue * 24) - 12) }));
             }
             break;
           case 'deckBEqMid':
             if (isRelativeCC) {
-              setDeckB(p => ({ ...p, eqMid: Math.max(-12, Math.min(12, p.eqMid + delta)) }));
+              setDeckB(p => ({ ...p, eqMid: Math.max(-12, Math.min(12, p.eqMid + delta * sens)) }));
             } else {
               setDeckB(p => ({ ...p, eqMid: Math.round((normalizedValue * 24) - 12) }));
             }
             break;
           case 'deckBEqLow':
             if (isRelativeCC) {
-              setDeckB(p => ({ ...p, eqLow: Math.max(-12, Math.min(12, p.eqLow + delta)) }));
+              setDeckB(p => ({ ...p, eqLow: Math.max(-12, Math.min(12, p.eqLow + delta * sens)) }));
             } else {
               setDeckB(p => ({ ...p, eqLow: Math.round((normalizedValue * 24) - 12) }));
             }
             break;
           case 'deckAPitch':
             if (isRelativeCC) {
-              setDeckA(p => ({ ...p, pitch: Math.max(-16, Math.min(16, p.pitch + delta * 0.2)) }));
+              setDeckA(p => ({ ...p, pitch: Math.max(-16, Math.min(16, p.pitch + delta * 0.2 * sens)) }));
             } else {
               setDeckA(p => ({ ...p, pitch: (normalizedValue * 32) - 16 }));
             }
             break;
           case 'deckBPitch':
             if (isRelativeCC) {
-              setDeckB(p => ({ ...p, pitch: Math.max(-16, Math.min(16, p.pitch + delta * 0.2)) }));
+              setDeckB(p => ({ ...p, pitch: Math.max(-16, Math.min(16, p.pitch + delta * 0.2 * sens)) }));
             } else {
               setDeckB(p => ({ ...p, pitch: (normalizedValue * 32) - 16 }));
             }
             break;
           case 'deckAFxFilter':
             if (isRelativeCC) {
-              setDeckA(p => ({ ...p, fxFilter: Math.max(200, Math.min(18000, p.fxFilter + delta * 150)) }));
+              setDeckA(p => ({ ...p, fxFilter: Math.max(200, Math.min(18000, p.fxFilter + delta * 150 * sens)) }));
             } else {
               setDeckA(p => ({ ...p, fxFilter: Math.round(200 + normalizedValue * 17800) }));
             }
             break;
           case 'deckBFxFilter':
             if (isRelativeCC) {
-              setDeckB(p => ({ ...p, fxFilter: Math.max(200, Math.min(18000, p.fxFilter + delta * 150)) }));
+              setDeckB(p => ({ ...p, fxFilter: Math.max(200, Math.min(18000, p.fxFilter + delta * 150 * sens)) }));
             } else {
               setDeckB(p => ({ ...p, fxFilter: Math.round(200 + normalizedValue * 17800) }));
             }
@@ -1284,6 +1322,66 @@ export default function DJConsole() {
     );
   }
 
+  const renderMidiIndicator = (controlKey: string) => {
+    const mapping = midiMap[controlKey];
+    const isLearning = midiLearnMode === controlKey;
+    
+    if (isLearning) {
+      return (
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            setMidiLearnMode(null);
+          }}
+          className="text-[8px] font-mono bg-amber-500/20 text-amber-400 border border-amber-500/40 px-1 py-0.5 rounded animate-pulse cursor-pointer shrink-0 transition-all hover:bg-amber-500/30 font-bold ml-1"
+        >
+          LEARNING...
+        </button>
+      );
+    }
+    
+    if (mapping) {
+      return (
+        <div className="flex items-center gap-0.5 inline-flex ml-1 shrink-0 bg-[#FF4B2B]/10 border border-[#FF4B2B]/20 rounded px-1 py-0.2">
+          <span className="text-[8px] font-mono text-[#FF4B2B] select-all">
+            {String(mapping).toUpperCase()}
+          </span>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              setMidiMap(prev => {
+                const next = { ...prev };
+                delete next[controlKey];
+                midiMapRef.current = next;
+                if (typeof window !== "undefined") {
+                  localStorage.setItem('apex_dj_midi_map', JSON.stringify(next));
+                }
+                return next;
+              });
+            }}
+            className="text-[8px] font-mono hover:bg-red-500/20 text-zinc-500 hover:text-red-400 px-0.5 rounded cursor-pointer transition-colors leading-none"
+            title="Clear MIDI mapping"
+          >
+            ×
+          </button>
+        </div>
+      );
+    }
+    
+    return (
+      <button
+        onClick={(e) => {
+          e.stopPropagation();
+          setMidiLearnMode(controlKey);
+        }}
+        className="text-[8px] font-mono text-zinc-600 hover:text-zinc-400 border border-transparent hover:border-zinc-800 hover:bg-zinc-950 px-1 py-0.5 rounded cursor-pointer opacity-30 hover:opacity-100 transition-all shrink-0 flex items-center gap-0.5 ml-1"
+        title="Map MIDI"
+      >
+        <Plug className="w-2 h-2" /> MIDI
+      </button>
+    );
+  };
+
   return (
     <div id="dj-console-container" className="flex-1 flex flex-col p-3 sm:p-6 max-w-[1400px] w-full mx-auto select-none gap-4 sm:gap-6">
       
@@ -1326,34 +1424,183 @@ export default function DJConsole() {
               }
             }}
             className={cn(
-              "px-3 py-2 text-[10px] font-mono tracking-widest rounded-lg border transition-colors flex items-center gap-2",
+              "px-3 py-2 text-[10px] font-mono tracking-widest rounded-lg border transition-colors flex items-center gap-2 cursor-pointer",
               midiDevices.length > 0
-                ? midiLearnMode ? "bg-amber-500/10 text-amber-500 border-amber-500/30" : "bg-emerald-500/10 text-emerald-500 border-emerald-500/30"
+                ? midiLearnMode ? "bg-amber-500/10 text-amber-500 border-amber-500/30 font-bold" : "bg-emerald-500/10 text-emerald-500 border-emerald-500/30"
                 : "bg-zinc-800 text-zinc-500 border-zinc-700"
             )}
-            title={midiDevices.join(', ')}
+            title={midiDevices.join(', ') || "Connect hardware to use"}
           >
-            {midiDevices.length > 0 ? (midiLearnMode ? `LEARNING: ${midiLearnMode.toUpperCase()}` : "MIDI: CONNECTED") : "MIDI: DISCONNECTED"}
+            {midiDevices.length > 0 ? (midiLearnMode ? `LEARNING: ${midiLearnMode.toUpperCase()}` : "MIDI LEARN") : "MIDI: DISCONNECTED"}
+          </button>
+
+          <button
+            onClick={() => setIsMidiPanelOpen(!isMidiPanelOpen)}
+            className={cn(
+              "px-3 py-2 text-[10px] font-mono tracking-widest rounded-lg border transition-all flex items-center gap-2 cursor-pointer",
+              isMidiPanelOpen 
+                ? "bg-[#FF4B2B]/20 text-[#FF4B2B] border-[#FF4B2B]/50 font-bold" 
+                : "bg-zinc-900 text-zinc-400 border-zinc-800 hover:text-white"
+            )}
+            title="Configure MIDI Map & Sensitivity Settings"
+          >
+            <Settings className="w-3.5 h-3.5" />
+            MIDI CONFIG {Object.keys(midiMap).length > 0 && `(${Object.keys(midiMap).length})`}
           </button>
 
           {!audioStarted ? (
-          <motion.button
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            onClick={initAudio}
-            className="px-4 sm:px-6 py-2 bg-gradient-to-r from-[#FF4B2B] to-[#FF8008] text-white font-mono font-medium rounded-xl shadow-[0_0_20px_rgba(255,75,43,0.3)] transition-all flex items-center gap-2 hover:brightness-110 text-xs sm:text-sm"
-          >
-            <Sparkles className="w-4 h-4" />
-            INITIALIZE AUDIO SYSTEM
-          </motion.button>
-        ) : (
-          <div className="flex items-center gap-2 bg-[#141414] px-4 py-2 rounded-xl border border-emerald-500/20">
-            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping" />
-            <span className="text-[10px] sm:text-xs text-emerald-400 font-mono">SYSTEM LIVE (WEB AUDIO API)</span>
-          </div>
-        )}
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={initAudio}
+              className="px-4 sm:px-6 py-2 bg-gradient-to-r from-[#FF4B2B] to-[#FF8008] text-white font-mono font-medium rounded-xl shadow-[0_0_20px_rgba(255,75,43,0.3)] transition-all flex items-center gap-2 hover:brightness-110 text-xs sm:text-sm cursor-pointer"
+            >
+              <Sparkles className="w-4 h-4" />
+              INITIALIZE AUDIO SYSTEM
+            </motion.button>
+          ) : (
+            <div className="flex items-center gap-2 bg-[#141414] px-4 py-2 rounded-xl border border-emerald-500/20">
+              <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping" />
+              <span className="text-[10px] sm:text-xs text-emerald-400 font-mono">SYSTEM LIVE (WEB AUDIO API)</span>
+            </div>
+          )}
         </div>
       </header>
+
+      {/* MIDI CONFIGURATION PANEL */}
+      {isMidiPanelOpen && (
+        <div id="midi-settings-panel" className="bg-[#0F0F0F] border border-[#1A1A1A] rounded-2xl p-4 sm:p-5 flex flex-col gap-4 transition-all">
+          <div className="flex justify-between items-center border-b border-zinc-900 pb-2">
+            <div className="flex items-center gap-2">
+              <Plug className="w-5 h-5 text-[#FF4B2B]" />
+              <h2 className="font-display font-bold text-sm sm:text-base text-white">MIDI HARDWARE MAPPING & CALIBRATION</h2>
+            </div>
+            <button 
+              onClick={() => setIsMidiPanelOpen(false)}
+              className="text-xs font-mono text-zinc-500 hover:text-white transition-colors cursor-pointer"
+            >
+              [ CLOSE ]
+            </button>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Sensitivity Section */}
+            <div className="flex flex-col gap-3 bg-[#080808] p-4 rounded-xl border border-zinc-900">
+              <h3 className="text-xs font-mono text-zinc-400 font-bold uppercase tracking-wider">RELATIVE KNOB SENSITIVITY</h3>
+              <p className="text-[11px] text-zinc-500 leading-relaxed font-sans">
+                Relative MIDI controls (endless encoders) send incremental ticks. Increase sensitivity to slide parameters faster, or lower it for fine precision.
+              </p>
+              
+              <div className="flex items-center gap-4 mt-2">
+                <input 
+                  type="range"
+                  min="0.1"
+                  max="4.0"
+                  step="0.1"
+                  value={midiSensitivity}
+                  onChange={(e) => updateMidiSensitivity(parseFloat(e.target.value))}
+                  className="flex-1 accent-[#FF4B2B] h-1.5 bg-zinc-900 rounded-lg cursor-pointer"
+                />
+                <span className="text-xs font-mono text-white font-bold bg-[#FF4B2B]/10 px-2 py-1 rounded border border-[#FF4B2B]/20 w-12 text-center">
+                  {midiSensitivity.toFixed(1)}x
+                </span>
+              </div>
+              <div className="flex justify-between text-[8px] font-mono text-zinc-600">
+                <span>0.1x (ULTRA FINE)</span>
+                <button onClick={() => updateMidiSensitivity(1.0)} className="hover:text-white font-bold">DEFAULT (1.0x)</button>
+                <span>4.0x (RAPID SWEEP)</span>
+              </div>
+            </div>
+
+            {/* MIDI Devices & Guide */}
+            <div className="flex flex-col gap-3 bg-[#080808] p-4 rounded-xl border border-zinc-900">
+              <h3 className="text-xs font-mono text-zinc-400 font-bold uppercase tracking-wider">ACTIVE INTERFACE STATUS</h3>
+              <div className="flex items-center gap-2">
+                <div className={cn("w-2 h-2 rounded-full", midiDevices.length > 0 ? "bg-emerald-500 animate-pulse" : "bg-zinc-700")} />
+                <span className="text-xs font-mono text-zinc-300">
+                  {midiDevices.length > 0 ? `${midiDevices.length} Connected Port(s)` : "No active Web MIDI ports detected"}
+                </span>
+              </div>
+              {midiDevices.length > 0 ? (
+                <div className="text-[10px] font-mono text-zinc-500 bg-zinc-950 p-2 rounded border border-zinc-900 max-h-16 overflow-y-auto">
+                  {midiDevices.map((d, i) => (
+                    <div key={i} className="flex items-center gap-1.5 text-zinc-400">
+                      <span className="text-[#FF4B2B]">⚡</span> {d}
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-[10px] text-zinc-500 leading-relaxed">
+                  Connect a class-compliant MIDI controller and reload the browser to enable hardware mixing. Make sure to grant Web MIDI permission if prompted.
+                </p>
+              )}
+            </div>
+          </div>
+
+          {/* Active Mappings Grid */}
+          <div className="bg-[#080808] p-4 rounded-xl border border-zinc-900 mt-2">
+            <div className="flex justify-between items-center mb-2.5">
+              <h3 className="text-xs font-mono text-zinc-400 font-bold uppercase tracking-wider">ASSIGNED MAP REGISTRY</h3>
+              {Object.keys(midiMap).length > 0 && (
+                <button
+                  onClick={() => {
+                    if (confirm("Are you sure you want to clear all active MIDI mapping registrations?")) {
+                      setMidiMap({});
+                      midiMapRef.current = {};
+                      if (typeof window !== "undefined") {
+                        localStorage.removeItem("apex_dj_midi_map");
+                      }
+                    }
+                  }}
+                  className="text-[9px] font-mono text-red-500 hover:text-red-400 hover:underline transition-colors flex items-center gap-1 cursor-pointer"
+                >
+                  <Trash2 className="w-3 h-3" /> CLEAR ALL
+                </button>
+              )}
+            </div>
+
+            {Object.keys(midiMap).length > 0 ? (
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
+                {Object.entries(midiMap).map(([ctrl, val]) => (
+                  <div key={ctrl} className="flex justify-between items-center bg-[#0C0C0C] border border-zinc-900 rounded p-2 text-xs font-mono">
+                    <div className="truncate pr-1">
+                      <div className="text-[10px] text-zinc-400 truncate uppercase">{ctrl.replace(/deck/g, '').replace(/Eq/g, ' EQ ')}</div>
+                      <div className="text-[8px] text-[#FF4B2B] truncate">Target: {ctrl}</div>
+                    </div>
+                    <div className="flex items-center gap-1 shrink-0">
+                      <span className="text-[10px] bg-[#FF4B2B]/10 text-[#FF4B2B] px-1 py-0.5 rounded border border-[#FF4B2B]/20">
+                        {String(val).toUpperCase()}
+                      </span>
+                      <button
+                        onClick={() => {
+                          setMidiMap(prev => {
+                            const next = { ...prev };
+                            delete next[ctrl];
+                            midiMapRef.current = next;
+                            if (typeof window !== "undefined") {
+                              localStorage.setItem("apex_dj_midi_map", JSON.stringify(next));
+                            }
+                            return next;
+                          });
+                        }}
+                        className="p-1 text-zinc-600 hover:text-red-500 transition-colors rounded cursor-pointer"
+                        title="Remove Mapping"
+                      >
+                        <Trash2 className="w-3 h-3" />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-6 border border-dashed border-zinc-900 rounded-lg">
+                <p className="text-[11px] text-zinc-500 font-mono">NO ACTIVE MIDI ASSIGNMENTS</p>
+                <p className="text-[9px] text-zinc-600 mt-1 font-sans">Click any "MIDI" label next to a mixer control, then turn/slide your controller knob to bind it.</p>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* MAIN DECKS WORKSPACE */}
       <div id="main-studio-grid" className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 items-stretch">
@@ -1479,8 +1726,8 @@ export default function DJConsole() {
 
             {/* Pitch / Tempo slider */}
             <div className="flex-1 flex flex-col gap-1 ml-2">
-              <div className="flex justify-between text-[10px] font-mono text-zinc-500">
-                <span>PITCH / BPM</span>
+              <div className="flex justify-between items-center text-[10px] font-mono text-zinc-500">
+                <span className="flex items-center gap-1">PITCH / BPM {renderMidiIndicator('deckAPitch')}</span>
                 <span className={deckA.pitch === 0 ? "text-zinc-600" : "text-purple-400"}>
                   {deckA.pitch > 0 ? "+" : ""}{deckA.pitch.toFixed(1)}%
                 </span>
@@ -1533,7 +1780,7 @@ export default function DJConsole() {
             </div>
 
             <div className="flex flex-col gap-1.5">
-              <span className="text-[9px] font-mono text-zinc-500 tracking-wider">FILTER SWEEP (LOW / HIGH)</span>
+              <span className="text-[9px] font-mono text-zinc-500 tracking-wider flex items-center gap-1">FILTER SWEEP (LOW / HIGH) {renderMidiIndicator('deckAFxFilter')}</span>
               <div className="flex items-center gap-2">
                 <input 
                   type="range"
@@ -1578,8 +1825,8 @@ export default function DJConsole() {
               <div className="flex flex-col gap-3 w-full">
                 {/* HIGH */}
                 <div className="flex flex-col gap-1 w-full">
-                  <div className="flex justify-between text-[9px] font-mono text-zinc-500 px-1">
-                    <span>HI</span>
+                  <div className="flex justify-between items-center text-[9px] font-mono text-zinc-500 px-1">
+                    <span className="flex items-center gap-1">HI {renderMidiIndicator('deckAEqHigh')}</span>
                     <span>{deckA.eqHigh > 0 ? "+" : ""}{deckA.eqHigh}dB</span>
                   </div>
                   <input 
@@ -1591,8 +1838,8 @@ export default function DJConsole() {
 
                 {/* MID */}
                 <div className="flex flex-col gap-1 w-full">
-                  <div className="flex justify-between text-[9px] font-mono text-zinc-500 px-1">
-                    <span>MID</span>
+                  <div className="flex justify-between items-center text-[9px] font-mono text-zinc-500 px-1">
+                    <span className="flex items-center gap-1">MID {renderMidiIndicator('deckAEqMid')}</span>
                     <span>{deckA.eqMid > 0 ? "+" : ""}{deckA.eqMid}dB</span>
                   </div>
                   <input 
@@ -1604,8 +1851,8 @@ export default function DJConsole() {
 
                 {/* LOW */}
                 <div className="flex flex-col gap-1 w-full">
-                  <div className="flex justify-between text-[9px] font-mono text-zinc-500 px-1">
-                    <span>LOW</span>
+                  <div className="flex justify-between items-center text-[9px] font-mono text-zinc-500 px-1">
+                    <span className="flex items-center gap-1">LOW {renderMidiIndicator('deckAEqLow')}</span>
                     <span>{deckA.eqLow > 0 ? "+" : ""}{deckA.eqLow}dB</span>
                   </div>
                   <input 
@@ -1618,7 +1865,7 @@ export default function DJConsole() {
 
               {/* Volume Slider A */}
               <div className="flex flex-col items-center gap-1.5 w-full mt-2 border-t border-zinc-900 pt-3">
-                <span className="text-[8px] font-mono text-zinc-500">VOLUME</span>
+                <span className="text-[8px] font-mono text-zinc-500 flex items-center gap-1">VOLUME {renderMidiIndicator('deckAVolume')}</span>
                 <input 
                   type="range" min="0" max="1" step="0.05" value={deckA.volume}
                   onChange={(e) => setDeckA(prev => ({ ...prev, volume: parseFloat(e.target.value) }))}
@@ -1661,8 +1908,8 @@ export default function DJConsole() {
               <div className="flex flex-col gap-3 w-full">
                 {/* HIGH */}
                 <div className="flex flex-col gap-1 w-full">
-                  <div className="flex justify-between text-[9px] font-mono text-zinc-500 px-1">
-                    <span>HI</span>
+                  <div className="flex justify-between items-center text-[9px] font-mono text-zinc-500 px-1">
+                    <span className="flex items-center gap-1">HI {renderMidiIndicator('deckBEqHigh')}</span>
                     <span>{deckB.eqHigh > 0 ? "+" : ""}{deckB.eqHigh}dB</span>
                   </div>
                   <input 
@@ -1674,8 +1921,8 @@ export default function DJConsole() {
 
                 {/* MID */}
                 <div className="flex flex-col gap-1 w-full">
-                  <div className="flex justify-between text-[9px] font-mono text-zinc-500 px-1">
-                    <span>MID</span>
+                  <div className="flex justify-between items-center text-[9px] font-mono text-zinc-500 px-1">
+                    <span className="flex items-center gap-1">MID {renderMidiIndicator('deckBEqMid')}</span>
                     <span>{deckB.eqMid > 0 ? "+" : ""}{deckB.eqMid}dB</span>
                   </div>
                   <input 
@@ -1687,8 +1934,8 @@ export default function DJConsole() {
 
                 {/* LOW */}
                 <div className="flex flex-col gap-1 w-full">
-                  <div className="flex justify-between text-[9px] font-mono text-zinc-500 px-1">
-                    <span>LOW</span>
+                  <div className="flex justify-between items-center text-[9px] font-mono text-zinc-500 px-1">
+                    <span className="flex items-center gap-1">LOW {renderMidiIndicator('deckBEqLow')}</span>
                     <span>{deckB.eqLow > 0 ? "+" : ""}{deckB.eqLow}dB</span>
                   </div>
                   <input 
@@ -1701,7 +1948,7 @@ export default function DJConsole() {
 
               {/* Volume Slider B */}
               <div className="flex flex-col items-center gap-1.5 w-full mt-2 border-t border-zinc-900 pt-3">
-                <span className="text-[8px] font-mono text-zinc-500">VOLUME</span>
+                <span className="text-[8px] font-mono text-zinc-500 flex items-center gap-1">VOLUME {renderMidiIndicator('deckBVolume')}</span>
                 <input 
                   type="range" min="0" max="1" step="0.05" value={deckB.volume}
                   onChange={(e) => setDeckB(prev => ({ ...prev, volume: parseFloat(e.target.value) }))}
@@ -1750,6 +1997,7 @@ export default function DJConsole() {
               <span className="text-[10px] font-mono text-zinc-500 flex items-center gap-1.5">
                 <Volume2 className="w-3.5 h-3.5" />
                 MASTER OUT
+                {renderMidiIndicator('masterVolume')}
               </span>
               <span className="text-xs font-mono text-[#FF4B2B] font-bold">
                 {(masterVolume * 100).toFixed(0)}%
@@ -1763,9 +2011,9 @@ export default function DJConsole() {
 
             {/* Crossfader bar */}
             <div className="flex flex-col gap-1.5 bg-[#0C0C0C] p-3 rounded-2xl border border-zinc-900">
-              <div className="flex justify-between text-[9px] font-mono text-zinc-500">
+              <div className="flex justify-between items-center text-[9px] font-mono text-zinc-500">
                 <span className={crossfader < 0.4 ? "text-purple-400 font-bold" : ""}>DECK A</span>
-                <span>CROSSFADER</span>
+                <span className="flex items-center gap-1">CROSSFADER {renderMidiIndicator('crossfader')}</span>
                 <span className={crossfader > 0.6 ? "text-emerald-400 font-bold" : ""}>DECK B</span>
               </div>
               
@@ -1906,8 +2154,8 @@ export default function DJConsole() {
 
             {/* Pitch / Tempo slider */}
             <div className="flex-1 flex flex-col gap-1 ml-2">
-              <div className="flex justify-between text-[10px] font-mono text-zinc-500">
-                <span>PITCH / BPM</span>
+              <div className="flex justify-between items-center text-[10px] font-mono text-zinc-500">
+                <span className="flex items-center gap-1">PITCH / BPM {renderMidiIndicator('deckBPitch')}</span>
                 <span className={deckB.pitch === 0 ? "text-zinc-600" : "text-emerald-400"}>
                   {deckB.pitch > 0 ? "+" : ""}{deckB.pitch.toFixed(1)}%
                 </span>
@@ -1960,7 +2208,7 @@ export default function DJConsole() {
             </div>
 
             <div className="flex flex-col gap-1.5">
-              <span className="text-[9px] font-mono text-zinc-500 tracking-wider">FILTER SWEEP (LOW / HIGH)</span>
+              <span className="text-[9px] font-mono text-zinc-500 tracking-wider flex items-center gap-1">FILTER SWEEP (LOW / HIGH) {renderMidiIndicator('deckBFxFilter')}</span>
               <div className="flex items-center gap-2">
                 <input 
                   type="range"

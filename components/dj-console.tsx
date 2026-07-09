@@ -1848,46 +1848,46 @@ export default function DJConsole() {
         </div>
 
         {/* LIBRARY LIST */}
-        <div id="library-list-container" className="md:col-span-8 flex flex-col gap-3">
+        <div id="library-list-container" className="md:col-span-8 flex flex-col gap-3 min-w-0">
           <h3 className="text-xs font-mono text-zinc-500 uppercase tracking-widest flex items-center gap-2">
             <Music className="w-3.5 h-3.5" />
             CONSOLE AUDIO LIBRARY presets & uploads
           </h3>
           
-          <div className="max-h-[140px] overflow-y-auto pr-1 flex flex-col gap-2 custom-scrollbar">
+          <div className="max-h-[280px] sm:max-h-[350px] overflow-y-auto pr-1 flex flex-col gap-2 custom-scrollbar">
             {tracks.map((track) => (
               <div 
                 key={track.id} 
-                className="flex items-center justify-between p-2.5 rounded-xl bg-zinc-950/40 border border-zinc-900 hover:border-zinc-800 transition-all group hover:bg-zinc-950/80"
+                className="flex flex-col sm:flex-row sm:items-center justify-between p-2.5 rounded-xl bg-zinc-950/40 border border-zinc-900 hover:border-zinc-800 transition-all group hover:bg-zinc-950/80 gap-3 sm:gap-4 min-w-0"
               >
-                <div className="flex items-center gap-3">
-                  <div className={cn("w-2 h-8 rounded-full bg-gradient-to-b shadow-sm", track.color)} />
-                  <div>
-                    <h4 className="text-xs font-bold text-zinc-300 truncate max-w-[220px]">
+                <div className="flex items-center gap-3 min-w-0 flex-1">
+                  <div className={cn("w-2 h-8 rounded-full bg-gradient-to-b shadow-sm shrink-0", track.color)} />
+                  <div className="min-w-0 flex-1">
+                    <h4 className="text-xs font-bold text-zinc-300 truncate max-w-[160px] min-[400px]:max-w-[220px] sm:max-w-xs md:max-w-md">
                       {track.title}
                     </h4>
-                    <p className="text-[10px] text-zinc-500">
+                    <p className="text-[10px] text-zinc-500 truncate">
                       {track.artist} • <span className="text-zinc-600 font-mono">{track.genre}</span>
                     </p>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-4">
-                  <div className="text-right">
+                <div className="flex items-center justify-between sm:justify-end gap-3 sm:gap-4 shrink-0">
+                  <div className="text-left sm:text-right">
                     <span className="text-[10px] font-mono text-zinc-400">{track.bpm} BPM</span>
                     <p className="text-[8px] font-mono text-zinc-600">{track.type === "synth" ? "BUILT-IN SYNTH" : "CUSTOM FILE"}</p>
                   </div>
 
-                  <div className="flex gap-2">
+                  <div className="flex flex-col sm:flex-row gap-1.5">
                     <button
                       onClick={() => loadTrack("A", track)}
-                      className="px-2.5 py-1 text-[10px] font-mono rounded bg-purple-500/10 hover:bg-purple-500/20 text-purple-400 border border-purple-500/20"
+                      className="px-3 py-1 text-[10px] font-mono rounded bg-purple-500/10 hover:bg-purple-500/20 text-purple-400 border border-purple-500/20 cursor-pointer w-16 sm:w-auto text-center font-bold"
                     >
                       LOAD A
                     </button>
                     <button
                       onClick={() => loadTrack("B", track)}
-                      className="px-2.5 py-1 text-[10px] font-mono rounded bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/20"
+                      className="px-3 py-1 text-[10px] font-mono rounded bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/20 cursor-pointer w-16 sm:w-auto text-center font-bold"
                     >
                       LOAD B
                     </button>

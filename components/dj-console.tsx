@@ -1103,7 +1103,7 @@ export default function DJConsole() {
 
   if (currentView === "soundbite") {
     return (
-      <div id="dj-console-container" className="flex-1 flex flex-col p-6 max-w-[1400px] w-full mx-auto select-none gap-6">
+      <div id="dj-console-container" className="flex-1 flex flex-col p-3 sm:p-6 max-w-[1400px] w-full mx-auto select-none gap-4 sm:gap-6">
         <div className="max-w-4xl mx-auto w-full">
           <button 
             onClick={() => setCurrentView("console")} 
@@ -1118,23 +1118,23 @@ export default function DJConsole() {
   }
 
   return (
-    <div id="dj-console-container" className="flex-1 flex flex-col p-6 max-w-[1400px] w-full mx-auto select-none gap-6">
+    <div id="dj-console-container" className="flex-1 flex flex-col p-3 sm:p-6 max-w-[1400px] w-full mx-auto select-none gap-4 sm:gap-6">
       
       {/* HEADER SECTION */}
-      <header id="console-header" className="flex flex-col sm:flex-row justify-between items-center bg-[#0F0F0F] border border-[#1A1A1A] rounded-2xl p-5 gap-4">
+      <header id="console-header" className="flex flex-col md:flex-row justify-between items-center bg-[#0F0F0F] border border-[#1A1A1A] rounded-2xl p-4 sm:p-5 gap-4">
         <div className="flex items-center gap-3">
           <div className="p-3 bg-gradient-to-tr from-[#FF4B2B] to-[#FF8008] rounded-xl shadow-[0_0_15px_rgba(255,75,43,0.3)]">
             <Radio className="w-6 h-6 text-white animate-pulse" />
           </div>
           <div>
-            <h1 className="font-display font-bold text-2xl tracking-tight text-white flex items-center gap-2">
+            <h1 className="font-display font-bold text-xl sm:text-2xl tracking-tight text-white flex items-center gap-2">
               APEX <span className="text-[#FF4B2B]">DECK-TWO</span>
             </h1>
-            <p className="text-xs text-zinc-500 font-mono tracking-wider">STUDIO GRADE DUAL MIXER CONSOLE</p>
+            <p className="text-[10px] sm:text-xs text-zinc-500 font-mono tracking-wider">STUDIO GRADE DUAL MIXER CONSOLE</p>
           </div>
         </div>
 
-        <div className="flex items-center gap-4">
+        <div className="flex flex-wrap items-center justify-center md:justify-end gap-3 w-full md:w-auto">
           <button 
             onClick={() => setCurrentView("soundbite")}
             className="px-4 py-2 bg-[#FF4B2B]/10 text-[#FF4B2B] hover:bg-[#FF4B2B]/20 text-[10px] font-mono tracking-widest rounded-lg border border-[#FF4B2B]/30 transition-colors flex items-center gap-2 cursor-pointer"
@@ -1173,7 +1173,7 @@ export default function DJConsole() {
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             onClick={initAudio}
-            className="px-6 py-2.5 bg-gradient-to-r from-[#FF4B2B] to-[#FF8008] text-white font-mono font-medium rounded-xl shadow-[0_0_20px_rgba(255,75,43,0.3)] transition-all flex items-center gap-2 hover:brightness-110 text-sm"
+            className="px-4 sm:px-6 py-2 bg-gradient-to-r from-[#FF4B2B] to-[#FF8008] text-white font-mono font-medium rounded-xl shadow-[0_0_20px_rgba(255,75,43,0.3)] transition-all flex items-center gap-2 hover:brightness-110 text-xs sm:text-sm"
           >
             <Sparkles className="w-4 h-4" />
             INITIALIZE AUDIO SYSTEM
@@ -1181,32 +1181,32 @@ export default function DJConsole() {
         ) : (
           <div className="flex items-center gap-2 bg-[#141414] px-4 py-2 rounded-xl border border-emerald-500/20">
             <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping" />
-            <span className="text-xs text-emerald-400 font-mono">SYSTEM LIVE (WEB AUDIO API)</span>
+            <span className="text-[10px] sm:text-xs text-emerald-400 font-mono">SYSTEM LIVE (WEB AUDIO API)</span>
           </div>
         )}
         </div>
       </header>
 
       {/* MAIN DECKS WORKSPACE */}
-      <div id="main-studio-grid" className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+      <div id="main-studio-grid" className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 items-stretch">
         
         {/* --- DECK A (LEFT PANEL) --- */}
-        <section id="deck-a-panel" className="lg:col-span-4 bg-[#0A0A0A] border border-[#1A1A1A] rounded-3xl p-6 flex flex-col justify-between gap-6 hover:border-purple-500/20 transition-all shadow-xl relative overflow-hidden">
+        <section id="deck-a-panel" className="lg:col-span-4 bg-[#0A0A0A] border border-[#1A1A1A] rounded-3xl p-4 sm:p-6 flex flex-col justify-between gap-4 sm:gap-6 hover:border-purple-500/20 transition-all shadow-xl relative overflow-hidden">
           {/* Subtle neon gradient glow */}
           <div className="absolute top-0 left-0 w-32 h-32 bg-purple-500/5 rounded-full filter blur-3xl pointer-events-none" />
 
           {/* Deck A Header */}
-          <div className="flex justify-between items-start z-10">
-            <div>
+          <div className="flex justify-between items-start z-10 gap-2">
+            <div className="min-w-0 flex-1">
               <span className="px-2 py-0.5 bg-purple-500/10 text-purple-400 font-mono text-[10px] uppercase font-bold rounded-md tracking-wider border border-purple-500/20">
                 DECK A
               </span>
-              <h2 className="text-lg font-bold text-white truncate max-w-[180px] mt-2">
+              <h2 className="text-base sm:text-lg font-bold text-white truncate mt-2 max-w-[130px] min-[380px]:max-w-[180px] sm:max-w-xs">
                 {deckA.track.title}
               </h2>
               <p className="text-xs text-zinc-500 truncate">{deckA.track.artist}</p>
             </div>
-            <div className="text-right">
+            <div className="text-right shrink-0">
               <p className="text-xs font-mono text-purple-400 flex items-center gap-2 justify-end">
                 {deckA.track.key && <span className="bg-purple-900/40 text-purple-200 px-1.5 py-0.5 rounded text-[9px]">{deckA.track.key}</span>}
                 <span>{(deckA.track.bpm * (1 + deckA.pitch / 100)).toFixed(1)} <span className="text-[10px] text-zinc-500">BPM</span></span>
@@ -1224,11 +1224,11 @@ export default function DJConsole() {
           </div>
 
           {/* TURNTABLE SECTION */}
-          <div className="flex justify-center my-4 relative">
+          <div className="flex justify-center my-2 sm:my-4 relative">
             <div 
               id="vinyl-deck-a"
               style={{ transform: `rotate(${deckA.rotation}deg)` }}
-              className="relative w-56 h-56 rounded-full bg-radial from-[#151515] to-[#0D0D0D] border-4 border-[#1C1C1C] flex items-center justify-center cursor-pointer shadow-2xl overflow-hidden transition-transform ease-out"
+              className="relative w-44 h-44 sm:w-56 sm:h-56 rounded-full bg-radial from-[#151515] to-[#0D0D0D] border-4 border-[#1C1C1C] flex items-center justify-center cursor-pointer shadow-2xl overflow-hidden transition-transform ease-out"
               onClick={() => togglePlay("A")}
             >
               {/* Grooves */}
@@ -1240,18 +1240,18 @@ export default function DJConsole() {
               <div className="absolute inset-24 rounded-full border border-zinc-800/5" />
 
               {/* Deck Style Center Label */}
-              <div className="w-16 h-16 rounded-full bg-gradient-to-tr from-purple-600 to-pink-500 flex items-center justify-center shadow-lg relative">
-                <Disc className="w-6 h-6 text-white animate-spin-slow" />
+              <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-gradient-to-tr from-purple-600 to-pink-500 flex items-center justify-center shadow-lg relative">
+                <Disc className="w-5 h-5 sm:w-6 sm:h-6 text-white animate-spin-slow" />
                 {/* Center Spindle Hole */}
-                <div className="absolute w-3 h-3 rounded-full bg-[#0A0A0A] border border-zinc-800" />
+                <div className="absolute w-2 h-2 sm:w-3 sm:h-3 rounded-full bg-[#0A0A0A] border border-zinc-800" />
               </div>
 
               {/* Sound Indicator Accent */}
-              <div className="absolute top-2 left-1/2 w-1.5 h-10 bg-purple-400/80 rounded-full -translate-x-1/2 shadow-lg" />
+              <div className="absolute top-2 left-1/2 w-1 h-6 sm:w-1.5 sm:h-10 bg-purple-400/80 rounded-full -translate-x-1/2 shadow-lg" />
             </div>
 
             {/* Tonearm Needle */}
-            <div className="absolute top-0 right-4 w-12 h-28 pointer-events-none transform origin-top-right rotate-6 transition-transform">
+            <div className="hidden sm:block absolute top-0 right-4 w-12 h-28 pointer-events-none transform origin-top-right rotate-6 transition-transform">
               {/* Metallic arm arm */}
               <div className="absolute right-2 top-0 w-1.5 h-20 bg-zinc-600 rounded-full rotate-6" />
               {/* Needle cart */}
@@ -1386,7 +1386,7 @@ export default function DJConsole() {
         </section>
 
         {/* --- CENTRAL MIXER (MIDDLE PANEL) --- */}
-        <section id="central-mixer-panel" className="lg:col-span-4 bg-[#080808] border border-[#1A1A1A] rounded-3xl p-6 flex flex-col justify-between gap-6 shadow-2xl relative">
+        <section id="central-mixer-panel" className="lg:col-span-4 bg-[#080808] border border-[#1A1A1A] rounded-3xl p-4 sm:p-6 flex flex-col justify-between gap-4 sm:gap-6 shadow-2xl relative">
           
           <div className="flex justify-between items-center border-b border-zinc-900 pb-3">
             <h3 className="text-xs font-mono text-zinc-500 tracking-widest uppercase flex items-center gap-2">
@@ -1403,13 +1403,13 @@ export default function DJConsole() {
           <div className="flex justify-between gap-2 flex-1 my-2">
             
             {/* CH A Mixer Strip */}
-            <div className="flex-1 flex flex-col items-center gap-4 bg-[#0D0D0D] p-3 rounded-2xl border border-zinc-900">
+            <div className="flex-1 min-w-0 flex flex-col items-center gap-4 bg-[#0D0D0D] p-2 sm:p-3 rounded-2xl border border-zinc-900">
               <span className="text-[10px] font-mono text-purple-400 font-bold">CH A</span>
               
               {/* EQ Knobs/Sliders */}
               <div className="flex flex-col gap-3 w-full">
                 {/* HIGH */}
-                <div className="flex flex-col gap-1">
+                <div className="flex flex-col gap-1 w-full">
                   <div className="flex justify-between text-[9px] font-mono text-zinc-500 px-1">
                     <span>HI</span>
                     <span>{deckA.eqHigh > 0 ? "+" : ""}{deckA.eqHigh}dB</span>
@@ -1417,12 +1417,12 @@ export default function DJConsole() {
                   <input 
                     type="range" min="-12" max="12" step="1" value={deckA.eqHigh}
                     onChange={(e) => setDeckA(prev => ({ ...prev, eqHigh: parseInt(e.target.value) }))}
-                    className="accent-purple-500 h-1 bg-zinc-950 rounded cursor-pointer"
+                    className="accent-purple-500 h-1 bg-zinc-950 rounded cursor-pointer w-full"
                   />
                 </div>
 
                 {/* MID */}
-                <div className="flex flex-col gap-1">
+                <div className="flex flex-col gap-1 w-full">
                   <div className="flex justify-between text-[9px] font-mono text-zinc-500 px-1">
                     <span>MID</span>
                     <span>{deckA.eqMid > 0 ? "+" : ""}{deckA.eqMid}dB</span>
@@ -1430,12 +1430,12 @@ export default function DJConsole() {
                   <input 
                     type="range" min="-12" max="12" step="1" value={deckA.eqMid}
                     onChange={(e) => setDeckA(prev => ({ ...prev, eqMid: parseInt(e.target.value) }))}
-                    className="accent-purple-500 h-1 bg-zinc-950 rounded cursor-pointer"
+                    className="accent-purple-500 h-1 bg-zinc-950 rounded cursor-pointer w-full"
                   />
                 </div>
 
                 {/* LOW */}
-                <div className="flex flex-col gap-1">
+                <div className="flex flex-col gap-1 w-full">
                   <div className="flex justify-between text-[9px] font-mono text-zinc-500 px-1">
                     <span>LOW</span>
                     <span>{deckA.eqLow > 0 ? "+" : ""}{deckA.eqLow}dB</span>
@@ -1443,7 +1443,7 @@ export default function DJConsole() {
                   <input 
                     type="range" min="-12" max="12" step="1" value={deckA.eqLow}
                     onChange={(e) => setDeckA(prev => ({ ...prev, eqLow: parseInt(e.target.value) }))}
-                    className="accent-purple-500 h-1 bg-zinc-950 rounded cursor-pointer"
+                    className="accent-purple-500 h-1 bg-zinc-950 rounded cursor-pointer w-full"
                   />
                 </div>
               </div>
@@ -1486,13 +1486,13 @@ export default function DJConsole() {
             </div>
 
             {/* CH B Mixer Strip */}
-            <div className="flex-1 flex flex-col items-center gap-4 bg-[#0D0D0D] p-3 rounded-2xl border border-zinc-900">
+            <div className="flex-1 min-w-0 flex flex-col items-center gap-4 bg-[#0D0D0D] p-2 sm:p-3 rounded-2xl border border-zinc-900">
               <span className="text-[10px] font-mono text-emerald-400 font-bold">CH B</span>
               
               {/* EQ Knobs/Sliders */}
               <div className="flex flex-col gap-3 w-full">
                 {/* HIGH */}
-                <div className="flex flex-col gap-1">
+                <div className="flex flex-col gap-1 w-full">
                   <div className="flex justify-between text-[9px] font-mono text-zinc-500 px-1">
                     <span>HI</span>
                     <span>{deckB.eqHigh > 0 ? "+" : ""}{deckB.eqHigh}dB</span>
@@ -1500,12 +1500,12 @@ export default function DJConsole() {
                   <input 
                     type="range" min="-12" max="12" step="1" value={deckB.eqHigh}
                     onChange={(e) => setDeckB(prev => ({ ...prev, eqHigh: parseInt(e.target.value) }))}
-                    className="accent-emerald-500 h-1 bg-zinc-950 rounded cursor-pointer"
+                    className="accent-emerald-500 h-1 bg-zinc-950 rounded cursor-pointer w-full"
                   />
                 </div>
 
                 {/* MID */}
-                <div className="flex flex-col gap-1">
+                <div className="flex flex-col gap-1 w-full">
                   <div className="flex justify-between text-[9px] font-mono text-zinc-500 px-1">
                     <span>MID</span>
                     <span>{deckB.eqMid > 0 ? "+" : ""}{deckB.eqMid}dB</span>
@@ -1513,12 +1513,12 @@ export default function DJConsole() {
                   <input 
                     type="range" min="-12" max="12" step="1" value={deckB.eqMid}
                     onChange={(e) => setDeckB(prev => ({ ...prev, eqMid: parseInt(e.target.value) }))}
-                    className="accent-emerald-500 h-1 bg-zinc-950 rounded cursor-pointer"
+                    className="accent-emerald-500 h-1 bg-zinc-950 rounded cursor-pointer w-full"
                   />
                 </div>
 
                 {/* LOW */}
-                <div className="flex flex-col gap-1">
+                <div className="flex flex-col gap-1 w-full">
                   <div className="flex justify-between text-[9px] font-mono text-zinc-500 px-1">
                     <span>LOW</span>
                     <span>{deckB.eqLow > 0 ? "+" : ""}{deckB.eqLow}dB</span>
@@ -1526,7 +1526,7 @@ export default function DJConsole() {
                   <input 
                     type="range" min="-12" max="12" step="1" value={deckB.eqLow}
                     onChange={(e) => setDeckB(prev => ({ ...prev, eqLow: parseInt(e.target.value) }))}
-                    className="accent-emerald-500 h-1 bg-zinc-950 rounded cursor-pointer"
+                    className="accent-emerald-500 h-1 bg-zinc-950 rounded cursor-pointer w-full"
                   />
                 </div>
               </div>
@@ -1549,26 +1549,26 @@ export default function DJConsole() {
           <div className="bg-[#0B0B0B] border border-zinc-900 rounded-2xl p-4 flex flex-col gap-3">
             <span className="text-[9px] font-mono text-zinc-400 tracking-wider">ECHO DELAY FX ENGINE</span>
             <div className="grid grid-cols-2 gap-4">
-              <div className="flex flex-col gap-1">
+              <div className="flex flex-col gap-1 min-w-0">
                 <div className="flex justify-between text-[8px] font-mono text-zinc-500">
-                  <span>DECK A FEEDBACK</span>
+                  <span className="truncate">DECK A FEED</span>
                   <span>{(deckA.fxDelay * 100).toFixed(0)}%</span>
                 </div>
                 <input 
                   type="range" min="0" max="0.85" step="0.05" value={deckA.fxDelay}
                   onChange={(e) => setDeckA(prev => ({ ...prev, fxDelay: parseFloat(e.target.value) }))}
-                  className="accent-purple-500 h-1 bg-zinc-900 rounded-lg cursor-pointer"
+                  className="accent-purple-500 h-1 bg-zinc-900 rounded-lg cursor-pointer w-full"
                 />
               </div>
-              <div className="flex flex-col gap-1">
+              <div className="flex flex-col gap-1 min-w-0">
                 <div className="flex justify-between text-[8px] font-mono text-zinc-500">
-                  <span>DECK B FEEDBACK</span>
+                  <span className="truncate">DECK B FEED</span>
                   <span>{(deckB.fxDelay * 100).toFixed(0)}%</span>
                 </div>
                 <input 
                   type="range" min="0" max="0.85" step="0.05" value={deckB.fxDelay}
                   onChange={(e) => setDeckB(prev => ({ ...prev, fxDelay: parseFloat(e.target.value) }))}
-                  className="accent-emerald-500 h-1 bg-zinc-900 rounded-lg cursor-pointer"
+                  className="accent-emerald-500 h-1 bg-zinc-900 rounded-lg cursor-pointer w-full"
                 />
               </div>
             </div>
@@ -1618,22 +1618,22 @@ export default function DJConsole() {
         </section>
 
         {/* --- DECK B (RIGHT PANEL) --- */}
-        <section id="deck-b-panel" className="lg:col-span-4 bg-[#0A0A0A] border border-[#1A1A1A] rounded-3xl p-6 flex flex-col justify-between gap-6 hover:border-emerald-500/20 transition-all shadow-xl relative overflow-hidden">
+        <section id="deck-b-panel" className="lg:col-span-4 bg-[#0A0A0A] border border-[#1A1A1A] rounded-3xl p-4 sm:p-6 flex flex-col justify-between gap-4 sm:gap-6 hover:border-emerald-500/20 transition-all shadow-xl relative overflow-hidden">
           {/* Subtle neon gradient glow */}
           <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/5 rounded-full filter blur-3xl pointer-events-none" />
 
           {/* Deck B Header */}
-          <div className="flex justify-between items-start z-10">
-            <div>
+          <div className="flex justify-between items-start z-10 gap-2">
+            <div className="min-w-0 flex-1">
               <span className="px-2 py-0.5 bg-emerald-500/10 text-emerald-400 font-mono text-[10px] uppercase font-bold rounded-md tracking-wider border border-emerald-500/20">
                 DECK B
               </span>
-              <h2 className="text-lg font-bold text-white truncate max-w-[180px] mt-2">
+              <h2 className="text-base sm:text-lg font-bold text-white truncate mt-2 max-w-[130px] min-[380px]:max-w-[180px] sm:max-w-xs">
                 {deckB.track.title}
               </h2>
               <p className="text-xs text-zinc-500 truncate">{deckB.track.artist}</p>
             </div>
-            <div className="text-right">
+            <div className="text-right shrink-0">
               <p className="text-xs font-mono text-emerald-400 flex items-center gap-2 justify-end">
                 {deckB.track.key && <span className="bg-emerald-900/40 text-emerald-200 px-1.5 py-0.5 rounded text-[9px]">{deckB.track.key}</span>}
                 <span>{(deckB.track.bpm * (1 + deckB.pitch / 100)).toFixed(1)} <span className="text-[10px] text-zinc-500">BPM</span></span>
@@ -1651,11 +1651,11 @@ export default function DJConsole() {
           </div>
 
           {/* TURNTABLE SECTION */}
-          <div className="flex justify-center my-4 relative">
+          <div className="flex justify-center my-2 sm:my-4 relative">
             <div 
               id="vinyl-deck-b"
               style={{ transform: `rotate(${deckB.rotation}deg)` }}
-              className="relative w-56 h-56 rounded-full bg-radial from-[#151515] to-[#0D0D0D] border-4 border-[#1C1C1C] flex items-center justify-center cursor-pointer shadow-2xl overflow-hidden transition-transform ease-out"
+              className="relative w-44 h-44 sm:w-56 sm:h-56 rounded-full bg-radial from-[#151515] to-[#0D0D0D] border-4 border-[#1C1C1C] flex items-center justify-center cursor-pointer shadow-2xl overflow-hidden transition-transform ease-out"
               onClick={() => togglePlay("B")}
             >
               {/* Grooves */}
@@ -1667,18 +1667,18 @@ export default function DJConsole() {
               <div className="absolute inset-24 rounded-full border border-zinc-800/5" />
 
               {/* Deck Style Center Label */}
-              <div className="w-16 h-16 rounded-full bg-gradient-to-tr from-emerald-600 to-teal-500 flex items-center justify-center shadow-lg relative">
-                <Disc2 className="w-6 h-6 text-white animate-spin-slow" />
+              <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-gradient-to-tr from-emerald-600 to-teal-500 flex items-center justify-center shadow-lg relative">
+                <Disc2 className="w-5 h-5 sm:w-6 sm:h-6 text-white animate-spin-slow" />
                 {/* Center Spindle Hole */}
-                <div className="absolute w-3 h-3 rounded-full bg-[#0A0A0A] border border-zinc-800" />
+                <div className="absolute w-2 h-2 sm:w-3 sm:h-3 rounded-full bg-[#0A0A0A] border border-zinc-800" />
               </div>
 
               {/* Sound Indicator Accent */}
-              <div className="absolute top-2 left-1/2 w-1.5 h-10 bg-emerald-400/80 rounded-full -translate-x-1/2 shadow-lg" />
+              <div className="absolute top-2 left-1/2 w-1 h-6 sm:w-1.5 sm:h-10 bg-emerald-400/80 rounded-full -translate-x-1/2 shadow-lg" />
             </div>
 
             {/* Tonearm Needle */}
-            <div className="absolute top-0 right-4 w-12 h-28 pointer-events-none transform origin-top-right rotate-6 transition-transform">
+            <div className="hidden sm:block absolute top-0 right-4 w-12 h-28 pointer-events-none transform origin-top-right rotate-6 transition-transform">
               {/* Metallic arm arm */}
               <div className="absolute right-2 top-0 w-1.5 h-20 bg-zinc-600 rounded-full rotate-6" />
               {/* Needle cart */}
@@ -1815,13 +1815,13 @@ export default function DJConsole() {
       </div>
 
       {/* TRACK LIBRARY & FILE UPLOADER */}
-      <footer id="console-library-footer" className="grid grid-cols-1 md:grid-cols-12 gap-6 bg-[#090909] border border-[#1A1A1A] rounded-3xl p-6 relative">
+      <footer id="console-library-footer" className="grid grid-cols-1 md:grid-cols-12 gap-4 sm:gap-6 bg-[#090909] border border-[#1A1A1A] rounded-3xl p-4 sm:p-6 relative">
         
         {/* DRAG AND DROP FILE UPLOADER */}
         <div 
           id="uploader-container"
           className={cn(
-            "md:col-span-4 rounded-2xl border-2 border-dashed p-6 flex flex-col justify-center items-center text-center cursor-pointer transition-all gap-3 select-none relative",
+            "md:col-span-4 rounded-2xl border-2 border-dashed p-4 sm:p-6 flex flex-col justify-center items-center text-center cursor-pointer transition-all gap-3 select-none relative",
             isDragging 
               ? "border-[#FF4B2B] bg-[#FF4B2B]/5" 
               : "border-zinc-800 hover:border-zinc-700 bg-zinc-950/40"

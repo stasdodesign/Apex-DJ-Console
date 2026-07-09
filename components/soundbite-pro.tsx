@@ -159,17 +159,17 @@ export default function SoundBitePro() {
   };
 
   return (
-    <div className="bg-[#1a1a1a] p-8 rounded-xl border-4 border-[#0a0a0a] shadow-2xl max-w-4xl mx-auto font-sans select-none" style={{ backgroundImage: 'linear-gradient(180deg, #2a2a2a 0%, #1a1a1a 100%)' }}>
+    <div className="bg-[#1a1a1a] p-4 sm:p-8 rounded-xl border-4 border-[#0a0a0a] shadow-2xl max-w-4xl mx-auto font-sans select-none" style={{ backgroundImage: 'linear-gradient(180deg, #2a2a2a 0%, #1a1a1a 100%)' }}>
       
       {/* Header / Brand */}
-      <div className="flex justify-between items-center mb-8 border-b-2 border-[#0a0a0a] pb-4">
+      <div className="flex justify-between items-center mb-6 sm:b-8 border-b-2 border-[#0a0a0a] pb-4">
         <div>
-          <h2 className="text-3xl font-black text-red-600 tracking-tighter italic">RED SOUND</h2>
-          <h3 className="text-xl font-bold text-zinc-400 tracking-wider">SOUNDBITE PRO</h3>
+          <h2 className="text-2xl sm:text-3xl font-black text-red-600 tracking-tighter italic">RED SOUND</h2>
+          <h3 className="text-lg sm:text-xl font-bold text-zinc-400 tracking-wider">SOUNDBITE PRO</h3>
         </div>
         <button 
           onClick={() => setPower(!power)}
-          className={cn("w-12 h-12 rounded-full border-4 flex items-center justify-center transition-colors shadow-[0_0_15px_rgba(0,0,0,0.5)]", power ? "border-red-500 text-red-500 bg-red-950" : "border-zinc-700 text-zinc-700 bg-zinc-900")}
+          className={cn("w-10 h-10 sm:w-12 sm:h-12 rounded-full border-4 flex items-center justify-center transition-colors shadow-[0_0_15px_rgba(0,0,0,0.5)]", power ? "border-red-500 text-red-500 bg-red-950" : "border-zinc-700 text-zinc-700 bg-zinc-900")}
         >
           <Power className="w-5 h-5" />
         </button>
@@ -177,13 +177,13 @@ export default function SoundBitePro() {
 
       {!power ? (
         <div className="h-64 flex items-center justify-center">
-          <p className="text-zinc-700 font-bold tracking-widest text-xl">POWER OFF</p>
+          <p className="text-zinc-700 font-bold tracking-widest text-lg sm:text-xl">POWER OFF</p>
         </div>
       ) : (
-        <div className="space-y-8">
+        <div className="space-y-6 sm:space-y-8">
           
           {/* Main Controls & Screen */}
-          <div className="flex gap-6 items-start w-full min-w-0">
+          <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 items-stretch sm:items-start w-full min-w-0">
             
             <div className="bg-black p-4 rounded-lg border-2 border-zinc-800 flex-1 min-w-0 relative shadow-inner">
               <div className="absolute top-2 left-2 flex gap-2">
@@ -191,7 +191,7 @@ export default function SoundBitePro() {
                 <span className="text-[10px] font-bold text-red-600 tracking-widest">AUTO-BPM</span>
               </div>
               <div className="text-center mt-4">
-                <p className="text-5xl font-mono text-red-500 font-bold" style={{ textShadow: '0 0 10px rgba(239, 68, 68, 0.5)' }}>
+                <p className="text-4xl sm:text-5xl font-mono text-red-500 font-bold" style={{ textShadow: '0 0 10px rgba(239, 68, 68, 0.5)' }}>
                   {bpm.toFixed(1)}
                 </p>
                 <p className="text-xs text-red-900 font-bold tracking-widest mt-1">BEATS PER MINUTE</p>
@@ -228,9 +228,9 @@ export default function SoundBitePro() {
           </div>
 
           {/* Loop Pads */}
-          <div className="bg-[#111] p-6 rounded-xl border border-black shadow-inner">
+          <div className="bg-[#111] p-4 sm:p-6 rounded-xl border border-black shadow-inner">
             <h4 className="text-zinc-500 font-bold text-xs tracking-widest mb-4">SEAMLESS LOOP CHANNELS</h4>
-            <div className="grid grid-cols-3 gap-6">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 sm:gap-6">
               {loops.map((loop, i) => (
                 <div key={loop.id} className="bg-[#222] p-4 rounded-lg border border-[#333] flex flex-col items-center gap-4 relative">
                   <div className="absolute top-2 right-2">

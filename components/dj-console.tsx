@@ -412,8 +412,10 @@ export default function DJConsole() {
   // MIDI Support
   const [midiDevices, setMidiDevices] = useState<string[]>([]);
   const [midiLearnMode, setMidiLearnMode] = useState<string | null>(null);
-  const [midiMap, setMidiMap] = useState<Record<string, number>>({});
-  const midiMapRef = useRef<Record<string, number>>({}); // for fast access in handlers
+  const [midiMap, setMidiMap] = useState<Record<string, string | number>>({});
+  const midiMapRef = useRef<Record<string, string | number>>({}); // for fast access in handlers
+  const midiControlTypesRef = useRef<Record<string, 'absolute' | 'relative'>>({});
+  const midiRelativeCountRef = useRef<Record<string, number>>({});
 
   // Initializing Web Audio graph
   const initAudio = () => {
@@ -608,40 +610,205 @@ export default function DJConsole() {
     const onMIDIMessage = (message: any) => {
       const [status, data1, data2] = message.data;
       
-      // Control Change
+      let midiKey = "";
+      let normalizedValue = 0;
+      let rawValue = data1; // for fallback simple keys
+      
+      // Control Change (176 to 191)
       if (status >= 176 && status <= 191) {
-        const cc = data1;
-        const value = data2;
-        const normalized = value / 127;
+        const ccNum = data1;
+        const val = data2;
+        midiKey = `cc_${ccNum}`;
+        normalizedValue = val / 127;
+        rawValue = ccNum;
+      }
+      // Pitch Bend (224 to 239)
+      else if (status >= 224 && status <= 239) {
+        const pbValue = (data2 << 7) | data1;
+        midiKey = `pb_${status}`;
+        normalizedValue = pbValue / 16383;
+        rawValue = status;
+      }
+      // Note On / Note Off (144-159 or 128-143)
+      else if ((status >= 144 && status <= 159) || (status >= 128 && status <= 143)) {
+        const noteNum = data1;
+        const velocity = data2;
+        midiKey = `note_${noteNum}`;
+        normalizedValue = (status >= 128 && status <= 143) ? 0 : velocity / 127;
+        rawValue = noteNum;
+      }
+      
+      if (!midiKey) return;
 
-        // Learn mode
-        setMidiLearnMode(currentMode => {
-          if (currentMode) {
-            setMidiMap(prev => {
-              const newMap = { ...prev, [currentMode]: cc };
-              midiMapRef.current = newMap;
-              return newMap;
-            });
-            return null; // exit learn mode after mapped
+      // Learn mode
+      setMidiLearnMode(currentMode => {
+        if (currentMode) {
+          setMidiMap(prev => {
+            const newMap = { ...prev, [currentMode]: midiKey };
+            midiMapRef.current = newMap;
+            return newMap;
+          });
+          return null; // exit learn mode after mapped
+        }
+        return currentMode; // unchanged
+      });
+
+      const currentMap = midiMapRef.current;
+      
+      // Find which control is mapped to this midiKey or the raw numeric value (for backwards compatibility)
+      let mappedControl: string | null = null;
+      for (const [controlName, mappedKey] of Object.entries(currentMap)) {
+        if (String(mappedKey) === midiKey || String(mappedKey) === String(rawValue)) {
+          mappedControl = controlName;
+          break;
+        }
+      }
+
+      if (mappedControl) {
+        // Automatically detect relative vs absolute CC messages
+        let isRelativeCC = false;
+        let delta = 0;
+        
+        if (status >= 176 && status <= 191) {
+          const val = data2;
+          const controlType = midiControlTypesRef.current[midiKey] || 'absolute';
+          
+          if (controlType === 'absolute') {
+            if (val >= 10 && val <= 118) {
+              midiControlTypesRef.current[midiKey] = 'absolute';
+              midiRelativeCountRef.current[midiKey] = 0;
+            } else if (val === 1 || val === 2 || val === 3 || val === 127 || val === 126 || val === 125 || val === 63 || val === 65) {
+              if (!midiRelativeCountRef.current[midiKey]) midiRelativeCountRef.current[midiKey] = 0;
+              midiRelativeCountRef.current[midiKey]++;
+              if (midiRelativeCountRef.current[midiKey] >= 3) {
+                midiControlTypesRef.current[midiKey] = 'relative';
+              }
+            }
+          } else {
+            if (val >= 10 && val <= 118) {
+              midiControlTypesRef.current[midiKey] = 'absolute';
+              midiRelativeCountRef.current[midiKey] = 0;
+            } else {
+              isRelativeCC = true;
+            }
           }
-          return currentMode; // unchanged
-        });
+          
+          if (isRelativeCC) {
+            if (val === 1 || val === 2 || val === 3) {
+              delta = val;
+            } else if (val === 127 || val === 126 || val === 125) {
+              delta = -(128 - val);
+            } else if (val === 65 || val === 66) {
+              delta = val - 64;
+            } else if (val === 63 || val === 62) {
+              delta = -(64 - val);
+            }
+          }
+        }
 
-        const currentMap = midiMapRef.current;
-        
-        // Handle Mapped Controls
-        if (currentMap['crossfader'] === cc) setCrossfader(normalized);
-        if (currentMap['masterVolume'] === cc) setMasterVolume(normalized);
-        if (currentMap['deckAVolume'] === cc) setDeckA(p => ({ ...p, volume: normalized }));
-        if (currentMap['deckBVolume'] === cc) setDeckB(p => ({ ...p, volume: normalized }));
-        
-        if (currentMap['deckAEqHigh'] === cc) setDeckA(p => ({ ...p, eqHigh: (normalized * 24) - 12 }));
-        if (currentMap['deckAEqMid'] === cc) setDeckA(p => ({ ...p, eqMid: (normalized * 24) - 12 }));
-        if (currentMap['deckAEqLow'] === cc) setDeckA(p => ({ ...p, eqLow: (normalized * 24) - 12 }));
-        
-        if (currentMap['deckBEqHigh'] === cc) setDeckB(p => ({ ...p, eqHigh: (normalized * 24) - 12 }));
-        if (currentMap['deckBEqMid'] === cc) setDeckB(p => ({ ...p, eqMid: (normalized * 24) - 12 }));
-        if (currentMap['deckBEqLow'] === cc) setDeckB(p => ({ ...p, eqLow: (normalized * 24) - 12 }));
+        // Apply change to the control
+        switch (mappedControl) {
+          case 'crossfader':
+            if (isRelativeCC) {
+              setCrossfader(p => Math.max(0, Math.min(1, p + delta * 0.015)));
+            } else {
+              setCrossfader(normalizedValue);
+            }
+            break;
+          case 'masterVolume':
+            if (isRelativeCC) {
+              setMasterVolume(p => Math.max(0, Math.min(1.2, p + delta * 0.015)));
+            } else {
+              setMasterVolume(normalizedValue * 1.2);
+            }
+            break;
+          case 'deckAVolume':
+            if (isRelativeCC) {
+              setDeckA(p => ({ ...p, volume: Math.max(0, Math.min(1, p.volume + delta * 0.015)) }));
+            } else {
+              setDeckA(p => ({ ...p, volume: normalizedValue }));
+            }
+            break;
+          case 'deckBVolume':
+            if (isRelativeCC) {
+              setDeckB(p => ({ ...p, volume: Math.max(0, Math.min(1, p.volume + delta * 0.015)) }));
+            } else {
+              setDeckB(p => ({ ...p, volume: normalizedValue }));
+            }
+            break;
+          case 'deckAEqHigh':
+            if (isRelativeCC) {
+              setDeckA(p => ({ ...p, eqHigh: Math.max(-12, Math.min(12, p.eqHigh + delta)) }));
+            } else {
+              setDeckA(p => ({ ...p, eqHigh: Math.round((normalizedValue * 24) - 12) }));
+            }
+            break;
+          case 'deckAEqMid':
+            if (isRelativeCC) {
+              setDeckA(p => ({ ...p, eqMid: Math.max(-12, Math.min(12, p.eqMid + delta)) }));
+            } else {
+              setDeckA(p => ({ ...p, eqMid: Math.round((normalizedValue * 24) - 12) }));
+            }
+            break;
+          case 'deckAEqLow':
+            if (isRelativeCC) {
+              setDeckA(p => ({ ...p, eqLow: Math.max(-12, Math.min(12, p.eqLow + delta)) }));
+            } else {
+              setDeckA(p => ({ ...p, eqLow: Math.round((normalizedValue * 24) - 12) }));
+            }
+            break;
+          case 'deckBEqHigh':
+            if (isRelativeCC) {
+              setDeckB(p => ({ ...p, eqHigh: Math.max(-12, Math.min(12, p.eqHigh + delta)) }));
+            } else {
+              setDeckB(p => ({ ...p, eqHigh: Math.round((normalizedValue * 24) - 12) }));
+            }
+            break;
+          case 'deckBEqMid':
+            if (isRelativeCC) {
+              setDeckB(p => ({ ...p, eqMid: Math.max(-12, Math.min(12, p.eqMid + delta)) }));
+            } else {
+              setDeckB(p => ({ ...p, eqMid: Math.round((normalizedValue * 24) - 12) }));
+            }
+            break;
+          case 'deckBEqLow':
+            if (isRelativeCC) {
+              setDeckB(p => ({ ...p, eqLow: Math.max(-12, Math.min(12, p.eqLow + delta)) }));
+            } else {
+              setDeckB(p => ({ ...p, eqLow: Math.round((normalizedValue * 24) - 12) }));
+            }
+            break;
+          case 'deckAPitch':
+            if (isRelativeCC) {
+              setDeckA(p => ({ ...p, pitch: Math.max(-16, Math.min(16, p.pitch + delta * 0.2)) }));
+            } else {
+              setDeckA(p => ({ ...p, pitch: (normalizedValue * 32) - 16 }));
+            }
+            break;
+          case 'deckBPitch':
+            if (isRelativeCC) {
+              setDeckB(p => ({ ...p, pitch: Math.max(-16, Math.min(16, p.pitch + delta * 0.2)) }));
+            } else {
+              setDeckB(p => ({ ...p, pitch: (normalizedValue * 32) - 16 }));
+            }
+            break;
+          case 'deckAFxFilter':
+            if (isRelativeCC) {
+              setDeckA(p => ({ ...p, fxFilter: Math.max(200, Math.min(18000, p.fxFilter + delta * 150)) }));
+            } else {
+              setDeckA(p => ({ ...p, fxFilter: Math.round(200 + normalizedValue * 17800) }));
+            }
+            break;
+          case 'deckBFxFilter':
+            if (isRelativeCC) {
+              setDeckB(p => ({ ...p, fxFilter: Math.max(200, Math.min(18000, p.fxFilter + delta * 150)) }));
+            } else {
+              setDeckB(p => ({ ...p, fxFilter: Math.round(200 + normalizedValue * 17800) }));
+            }
+            break;
+          default:
+            break;
+        }
       }
     };
 
@@ -1148,7 +1315,8 @@ export default function DJConsole() {
               const targets = [
                 'crossfader', 'masterVolume',
                 'deckAVolume', 'deckAEqHigh', 'deckAEqMid', 'deckAEqLow',
-                'deckBVolume', 'deckBEqHigh', 'deckBEqMid', 'deckBEqLow'
+                'deckBVolume', 'deckBEqHigh', 'deckBEqMid', 'deckBEqLow',
+                'deckAPitch', 'deckBPitch', 'deckAFxFilter', 'deckBFxFilter'
               ];
               if (!midiLearnMode) setMidiLearnMode(targets[0]);
               else {

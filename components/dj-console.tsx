@@ -1924,6 +1924,24 @@ export default function DJConsole() {
             <div className="h-full w-full bg-zinc-700"></div>
           </div>
         </div>
+
+        {/* PRODUCT HUNT BADGE */}
+        <div className="shrink-0 flex items-center justify-center">
+          <a 
+            href="https://www.producthunt.com/products/apex-dj-console?embed=true&amp;utm_source=badge-featured&amp;utm_medium=badge&amp;utm_campaign=badge-apex-dj-console" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="block hover:opacity-90 transition-opacity"
+          >
+            <img 
+              alt="APEX: DJ Console - Browser-based DJ deck with live procedural audio synthesis  | Product Hunt" 
+              width="250" 
+              height="54" 
+              src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1191125&amp;theme=dark&amp;t=1783622466278"
+              className="h-[54px] w-[250px] object-contain rounded-xl border border-zinc-900/60"
+            />
+          </a>
+        </div>
       </div>
 
       {isContactModalOpen && (

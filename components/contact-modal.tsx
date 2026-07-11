@@ -36,7 +36,7 @@ export function ContactModal({ onClose }: ContactModalProps) {
               : 'Product designer focusing on AI, automotive interfaces, and complex systems. Crafting functional and aesthetic products for the future.'}
           </p>
           <a 
-            href="https://case.stanislavdovidenko.com/en.html#about" 
+            href="https://stanislavdovidenko.com/en.html#about" 
             target="_blank" 
             rel="noopener noreferrer"
             className="text-[#00F0FF] hover:underline text-xs inline-block"

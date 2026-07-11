@@ -203,7 +203,7 @@ Product Designer & Engineer
 *   **Telegram:** [@StasDoDesign](https://t.me/StasDoDesign)
 *   **LinkedIn:** [in/stasdodesign](http://linkedin.com/in/stasdodesign)
 *   **Instagram:** [@stasdodesign](https://instagram.com/stasdodesign)
-*   **Portfolio:** [case.stanislavdovidenko.com](https://case.stanislavdovidenko.com/en.html)
+*   **Portfolio:** [stanislavdovidenko.com](https://stanislavdovidenko.com/en.html)
 
 ---
 
